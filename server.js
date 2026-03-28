@@ -143,7 +143,7 @@ async function createUltravoxCall(callerName) {
 }
 
 async function bridgeWebRTC() {
-    if (!ultravoxOfferSdp || !whatsappOfferSdp || !ultravoxSocket) return;
+    //if (!ultravoxOfferSdp || !whatsappOfferSdp || !ultravoxSocket) return;
 
     console.log("🌉 Bridging WebRTC between Ultravox and WhatsApp...");
 
