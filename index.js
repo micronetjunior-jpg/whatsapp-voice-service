@@ -323,4 +323,5 @@ app.listen(PORT, () => {
   console.log(`Servidor escuchando en puerto ${PORT}`);
   console.log(`GET  /webhook`);
   console.log(`POST /webhook`);
+  enviarMensajeTexto("573176429931","Reload OK");
 });
