@@ -162,10 +162,10 @@ async function bridgeWebRTC() {
         }
     };
 
-    await ultravoxPc.setRemoteDescription(new RTCSessionDescription({
-        type: "offer",
-        sdp: ultravoxOfferSdp
-    }));
+    //await ultravoxPc.setRemoteDescription(new RTCSessionDescription({
+    //    type: "offer",
+    //    sdp: ultravoxOfferSdp
+    //}));
 
     // Setup WhatsApp peer connection
     whatsappPc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
