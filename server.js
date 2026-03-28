@@ -117,13 +117,13 @@ async function createUltravoxCall(callerName) {
             {
                 systemPrompt: `You are a healthcare assistant. The caller is ${callerName}. Help with booking lab tests or ordering medicines. Be friendly and concise.`,
                 voice: "Mark",
-                model: "fixie-ai/ultravox-v0_7",
+                model: "ultravox-v0.7",
                 temperature: 0.7,
                 maxDuration: 600
             },
             {
                 headers: {
-                    "X-Ultravox-Api-Key": ULTRAVOX_API_KEY,
+                    "X-API-Key": ULTRAVOX_API_KEY,
                     "Content-Type": "application/json"
                 }
             }
