@@ -95,7 +95,7 @@ app.post("/webhook", async (req, res) => {
                 await rejectCall(currentCallId);
             } else {
                 // Create Ultravox AI call
-                #await createUltravoxCall(callerName);
+                //await createUltravoxCall(callerName);
                 await bridgeWebRTC();
             }
 
