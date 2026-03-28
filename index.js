@@ -1,5 +1,11 @@
+const VERIFY_TOKEN="mi_token";
+const META_TOKEN = `Bearer ${process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN}`;
+const PHONE_NUMBER_ID=process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
+
 const express = require("express");
 //const wrtc = require("wrtc");
+
+const axios = require("axios");
 
 const {
     RTCPeerConnection,
@@ -199,64 +205,119 @@ async function iniciarSesionLoopback() {
    WEBHOOK
 ========================= */
 
-// Verificación simple por GET
+/* =========================
+   GET → VERIFICACIÓN META
+========================= */
 app.get("/webhook", (req, res) => {
-  res.status(200).send("Webhook activo");
-});
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
 
-// POST para iniciar/detener estado de prueba
-app.post("/webhook", async (req, res) => {
-  try {
-    const body = req.body || {};
-    const action = body.action || "start";
-
-    if (action === "start") {
-      if (sesionActiva) {
-        return res.status(200).json({
-          ok: true,
-          message: "Ya existe una sesión activa",
-        });
-      }
-
-      sesionActiva = await iniciarSesionLoopback();
-
-      return res.status(200).json({
-        ok: true,
-        message: "Sesión WebRTC iniciada",
-      });
-    }
-
-    if (action === "stop") {
-      if (sesionActiva) {
-        sesionActiva.cerrar();
-        sesionActiva = null;
-      }
-
-      return res.status(200).json({
-        ok: true,
-        message: "Sesión detenida",
-      });
-    }
-
-    if (action === "status") {
-      return res.status(200).json({
-        ok: true,
-        active: !!sesionActiva,
-      });
-    }
-
-    return res.status(400).json({
-      ok: false,
-      message: "Acción no válida. Usa start, stop o status",
-    });
-  } catch (error) {
-    console.error("Error en webhook:", error);
-    return res.status(500).json({
-      ok: false,
-      error: error.message,
-    });
+  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("Webhook verificado correctamente con Meta");
+    return res.status(200).send(challenge);
+  } else {
+    console.error("Error de verificación webhook");
+    return res.sendStatus(403);
   }
 });
+
+/* =========================
+   POST → EVENTOS META
+========================= */
+app.post("/webhook", async (req, res) => {
+  try {
+    const body = req.body;
+
+    // Responder rápido a Meta (MUY IMPORTANTE)
+    res.sendStatus(200);
+
+    if (body.object !== "whatsapp_business_account") return;
+
+    const entry = body.entry?.[0];
+    const changes = entry?.changes?.[0];
+    const value = changes?.value;
+
+    /* =====================
+       MENSAJES
+    ===================== */
+    if (value?.messages) {
+      const msg = value.messages[0];
+      const from = msg.from;
+
+      console.log("Mensaje recibido de:", from);
+
+      await enviarMensajeTexto(from, "Hola 👋 estoy activo");
+
+      // Opcional: iniciar tu loopback de prueba
+      if (!sesionActiva) {
+        sesionActiva = await iniciarSesionLoopback();
+      }
+    }
+
+    /* =====================
+       EVENTOS DE LLAMADAS
+    ===================== */
+    if (value?.calls) {
+      const call = value.calls[0];
+
+      console.log("Evento de llamada:", call.event);
+
+      if (call.event === "connect") {
+        console.log("Llamada entrante SDP:", call.session?.sdp);
+
+        // ⚠️ Aquí es donde normalmente:
+        // - procesas SDP
+        // - generas answer
+        // - respondes vía Graph API (no implementado aquí aún)
+      }
+
+      if (call.event === "terminate") {
+        console.log("Llamada finalizada");
+
+        if (sesionActiva) {
+          sesionActiva.cerrar();
+          sesionActiva = null;
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error("Error en webhook:", error.response?.data || error.message);
+  }
+});
+
+
+async function enviarMensajeTexto(to, text) {
+  try {
+    const url = `https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`;
+
+    const payload = {
+      messaging_product: "whatsapp",
+      to: to,
+      type: "text",
+      text: {
+        body: text,
+      },
+    };
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        Authorization: `Bearer ${META_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("Mensaje enviado:", response.data);
+
+  } catch (error) {
+    console.error(
+      "Error enviando mensaje:",
+      error.response?.data || error.message
+    );
+  }
+}
+
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en puerto ${PORT}`);
