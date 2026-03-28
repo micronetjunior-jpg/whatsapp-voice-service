@@ -1,5 +1,5 @@
 const VERIFY_TOKEN="mi_token";
-const META_TOKEN = `Bearer ${process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN}`;
+const META_TOKEN = 'Bearer ${process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN}';
 const PHONE_NUMBER_ID=process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
 
 const express = require("express");
