@@ -117,7 +117,7 @@ async function createUltravoxCall(callerName) {
             {
                 systemPrompt: `You are a healthcare assistant. The caller is ${callerName}. Help with booking lab tests or ordering medicines. Be friendly and concise.`,
                 voice: "Mark",
-                model: "fixie-ai/ultravox-v0_2",
+                model: "fixie-ai/ultravox-v0_7",
                 temperature: 0.7,
                 maxDuration: 600
             },
