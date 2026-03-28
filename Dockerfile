@@ -12,9 +12,9 @@ RUN apt-get update && apt-get install -y \
 COPY package.json .
 RUN npm install
 
-COPY server.js .
+COPY index.js .
 COPY .env* ./
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "index.js"]
