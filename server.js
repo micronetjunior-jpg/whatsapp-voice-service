@@ -148,13 +148,13 @@ async function bridgeWebRTC() {
     console.log("🌉 Bridging WebRTC between Ultravox and WhatsApp...");
 
     // Setup Ultravox peer connection
-    ultravoxPc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
-    ultravoxStream = new MediaStream();
+    //ultravoxPc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+    //ultravoxStream = new MediaStream();
 
-    ultravoxPc.ontrack = (event) => {
-        console.log("🎵 Audio from Ultravox");
-        event.streams[0].getTracks().forEach(track => ultravoxStream.addTrack(track));
-    };
+    //ultravoxPc.ontrack = (event) => {
+    //    console.log("🎵 Audio from Ultravox");
+    //    event.streams[0].getTracks().forEach(track => ultravoxStream.addTrack(track));
+    /};
 
     ultravoxPc.onicecandidate = (event) => {
         if (event.candidate) {
