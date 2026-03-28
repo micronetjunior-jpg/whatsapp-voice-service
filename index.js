@@ -1,7 +1,15 @@
 const express = require("express");
-const wrtc = require("wrtc");
+//const wrtc = require("wrtc");
 
-const { RTCPeerConnection, nonstandard } = wrtc;
+const {
+    RTCPeerConnection,
+    nonstandard,
+    RTCSessionDescription,
+    RTCIceCandidate,
+    MediaStream,
+} = require("@roamhq/wrtc");
+
+//const { RTCPeerConnection, nonstandard } = wrtc;
 const { RTCAudioSource, RTCAudioSink } = nonstandard;
 
 const app = express();
