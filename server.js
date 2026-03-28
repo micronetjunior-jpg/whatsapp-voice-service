@@ -154,7 +154,7 @@ async function bridgeWebRTC() {
     //ultravoxPc.ontrack = (event) => {
     //    console.log("🎵 Audio from Ultravox");
     //    event.streams[0].getTracks().forEach(track => ultravoxStream.addTrack(track));
-    /};
+    //};
 
     ultravoxPc.onicecandidate = (event) => {
         if (event.candidate) {
