@@ -116,10 +116,12 @@ async function createUltravoxCall(callerName) {
             "https://api.ultravox.ai/api/calls",
             {
                 systemPrompt: `You are a healthcare assistant. The caller is ${callerName}. Help with booking lab tests or ordering medicines. Be friendly and concise.`,
-                voice: "Mark",
+                voice: "Jessica",
+                temperature: 0.3,
                 model: "ultravox-v0.7",
-                temperature: 0.7,
-                maxDuration: 600
+                joinTimeout: "30s",
+                maxDuration: "3600s",
+                recordingEnabled: false,
             },
             {
                 headers: {
