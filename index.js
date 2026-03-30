@@ -3,10 +3,10 @@ const META_TOKEN = process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
 
 
-//TURN_URL_1=turn:tu-turn-host:3478?transport=tcp
-//TURN_URL_2=turns:tu-turn-host:5349?transport=tcp
-//TURN_USERNAME=tu_turn_user
-//TURN_PASSWORD=tu_turn_pass
+ TURN_URL_1="turn:academiabot.digital:3478?transport=tcp";
+TURN_URL_2="turns:academiabot.digital:5349?transport=tcp";
+TURN_USERNAME="admin"
+TURN_PASSWORD="1234"
 
 PORT=3000
 
@@ -615,3 +615,5 @@ app.listen(PORT, () => {
   console.log(`POST /webhook`);
   console.log(`GET  /health`);
 });
+
+//WKWERNR614A81EBH37T5ATDE recovery code twiilio
