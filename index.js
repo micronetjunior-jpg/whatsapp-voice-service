@@ -14,9 +14,17 @@ PORT=3000
 
 const express = require("express");
 const axios = require("axios");
-const wrtc = require("wrtc");
+//const wrtc = require("wrtc");
 
-const { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate, nonstandard } = wrtc;
+//const { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate, nonstandard } = wrtc;
+const {
+    RTCPeerConnection,
+    nonstandard,
+    RTCSessionDescription,
+    RTCIceCandidate,
+    MediaStream,
+} = require("@roamhq/wrtc");
+
 const { RTCAudioSource, RTCAudioSink } = nonstandard;
 
 const app = express();
