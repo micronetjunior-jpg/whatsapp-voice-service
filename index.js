@@ -221,7 +221,7 @@ function crearPeerConnection(callId) {
     rtcpMuxPolicy: "require",
   });
 
-  console.log(pc)
+  //console.log(pc)
 
   pc.onicecandidate = (event) => {
     if (!event.candidate) {
