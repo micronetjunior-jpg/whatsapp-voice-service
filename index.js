@@ -622,6 +622,7 @@ app.listen(PORT, () => {
   console.log(`GET  /webhook`);
   console.log(`POST /webhook`);
   console.log(`GET  /health`);
+  enviarMensajeTexto("573176429931","Reload NodeJS")
 });
 
 //WKWERNR614A81EBH37T5ATDE recovery code twiilio
