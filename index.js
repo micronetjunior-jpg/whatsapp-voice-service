@@ -221,6 +221,8 @@ function crearPeerConnection(callId) {
     rtcpMuxPolicy: "require",
   });
 
+  print(pc)
+
   pc.onicecandidate = (event) => {
     if (!event.candidate) {
       console.log(`[${callId}] ICE gathering finalizado`);
