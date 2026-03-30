@@ -3,10 +3,10 @@ const META_TOKEN = process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
 
 
- TURN_URL_1="turn:academiabot.digital:3478?transport=tcp";
-TURN_URL_2="turns:academiabot.digital:5349?transport=tcp";
-TURN_USERNAME="admin"
-TURN_PASSWORD="1234"
+const TURN_URL_1="turn:academiabot.digital:3478?transport=tcp";
+const TURN_URL_2="turns:academiabot.digital:5349?transport=tcp";
+const TURN_USERNAME="admin"
+const TURN_PASSWORD="1234"
 
 PORT=3000
 
@@ -35,10 +35,10 @@ const PORT = process.env.PORT || 3000;
 //const META_TOKEN = process.env.META_TOKEN;
 //const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
-const TURN_URL_1 = process.env.TURN_URL_1;
-const TURN_URL_2 = process.env.TURN_URL_2;
-const TURN_USERNAME = process.env.TURN_USERNAME;
-const TURN_PASSWORD = process.env.TURN_PASSWORD;
+//const TURN_URL_1 = process.env.TURN_URL_1;
+//const TURN_URL_2 = process.env.TURN_URL_2;
+//const TURN_USERNAME = process.env.TURN_USERNAME;
+//const TURN_PASSWORD = process.env.TURN_PASSWORD;
 
 const GRAPH_BASE = `https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}`;
 
