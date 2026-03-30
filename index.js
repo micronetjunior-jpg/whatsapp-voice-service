@@ -31,9 +31,9 @@ const app = express();
 app.use(express.json({ limit: "2mb" }));
 
 const PORT = process.env.PORT || 3000;
-const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
-const META_TOKEN = process.env.META_TOKEN;
-const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+//const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+//const META_TOKEN = process.env.META_TOKEN;
+//const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
 const TURN_URL_1 = process.env.TURN_URL_1;
 const TURN_URL_2 = process.env.TURN_URL_2;
