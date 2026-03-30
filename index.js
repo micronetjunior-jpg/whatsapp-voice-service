@@ -7,6 +7,7 @@ const TURN_URL_1="turn:localhost:3478?transport=tcp";
 const TURN_URL_2="turns:localhost:5349?transport=tcp";
 const TURN_USERNAME="admin"
 const TURN_PASSWORD="1234"
+const ICE_SERVERS = [{ urls: "stun:stun.relay.metered.ca:80" }];
 
 const PORT = process.env.PORT || 3000;
 
@@ -206,6 +207,8 @@ function crearLoopbackTrack(trackEntrada) {
 ========================================================= */
 
 function crearPeerConnection(callId) {
+  
+  /*
   const iceServers = [
     {
       urls: [TURN_URL_1, TURN_URL_2].filter(Boolean),
@@ -220,6 +223,19 @@ function crearPeerConnection(callId) {
     bundlePolicy: "max-bundle",
     rtcpMuxPolicy: "require",
   });
+  */
+
+  pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+
+    const waTrackPromise = new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject("WhatsApp track timeout"), 10000);
+        pc.ontrack = (event) => {
+            clearTimeout(timeout);
+            console.log("🎵 Audio from WhatsApp");
+            //whatsappStream = event.streams[0];
+            resolve();
+        };
+    });
 
   //console.log(pc)
 
