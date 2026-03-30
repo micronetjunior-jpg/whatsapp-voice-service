@@ -164,9 +164,9 @@ function crearReceptorAudio(track, label = "RX") {
   const sink = new RTCAudioSink(track);
 
   sink.ondata = (data) => {
-    console.log(
-      `[${label}] frame recibido | samples=${data.samples.length} | sr=${data.sampleRate} | ch=${data.channelCount}`
-    );
+    //console.log(
+    //  `[${label}] frame recibido | samples=${data.samples.length} | sr=${data.sampleRate} | ch=${data.channelCount}`
+    //);
   };
 
   return {
