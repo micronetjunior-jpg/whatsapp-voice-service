@@ -8,7 +8,7 @@ const TURN_URL_2="turns:academiabot.digital:5349?transport=tcp";
 const TURN_USERNAME="admin"
 const TURN_PASSWORD="1234"
 
-PORT=3000
+const PORT = process.env.PORT || 3000;
 
 "use strict";
 
@@ -30,7 +30,7 @@ const { RTCAudioSource, RTCAudioSink } = nonstandard;
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 
-const PORT = process.env.PORT || 3000;
+
 //const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 //const META_TOKEN = process.env.META_TOKEN;
 //const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
