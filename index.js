@@ -227,7 +227,7 @@ function crearPeerConnection(callId) {
 
   pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
 
-    const waTrackPromise = new Promise((resolve, reject) => {
+    /*const waTrackPromise = new Promise((resolve, reject) => {
         const timeout = setTimeout(() => reject("WhatsApp track timeout"), 10000);
         pc.ontrack = (event) => {
             clearTimeout(timeout);
@@ -235,7 +235,7 @@ function crearPeerConnection(callId) {
             //whatsappStream = event.streams[0];
             resolve();
         };
-    });
+    });*/
 
   //console.log(pc)
 
