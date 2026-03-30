@@ -3,8 +3,8 @@ const META_TOKEN = process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
 
 
-const TURN_URL_1="turn:10.255.255.17:3478?transport=tcp";
-const TURN_URL_2="turns:10.255.255.17:5349?transport=tcp";
+const TURN_URL_1="turn:localhost:3478?transport=tcp";
+const TURN_URL_2="turns:localhost:5349?transport=tcp";
 const TURN_USERNAME="admin"
 const TURN_PASSWORD="1234"
 
