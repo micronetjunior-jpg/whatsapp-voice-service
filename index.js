@@ -9,8 +9,9 @@ const STURN_URL = "stun:stun.cloudflare.com:3478"
 const TURN_URL_1="turn:turn.cloudflare.com:3478?transport=udp";
 const TURN_URL_2="turn:turn.cloudflare.com:3478?transport=tcp";
 const TURNS_URL ="turns:turn.cloudflare.com:5349?transport=tcp"
-const TURN_USERNAME="academiabot-turn"
-const TURN_PASSWORD="1234"
+
+let turn_username="academiabot-turn"
+let turn_password="1234"
 
 
 const PORT = process.env.PORT || 3000;
@@ -678,7 +679,10 @@ app.listen(PORT, () => {
     ttlSeconds: 3600
   });
 
-  console.log({ username, credential });
+  turn_username = username;
+  turn_password = credential;
+
+  console.log({ turn_username, turn_password });
 
 });
 
