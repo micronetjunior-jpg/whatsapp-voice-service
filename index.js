@@ -203,14 +203,14 @@ async function esperarIceCompleto(pc, timeoutMs = 8000) {
 
   await new Promise((resolve) => {
     const timer = setTimeout(() => {
-      pc.removeEventListener("icegatheringstatechange", onChange);
+      //pc.removeEventListener("icegatheringstatechange", onChange);
       resolve();
     }, timeoutMs);
 
     function onChange() {
       if (pc.iceGatheringState === "complete") {
         clearTimeout(timer);
-        pc.removeEventListener("icegatheringstatechange", onChange);
+        //pc.removeEventListener("icegatheringstatechange", onChange);
         resolve();
       }
     }
