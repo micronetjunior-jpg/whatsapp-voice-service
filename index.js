@@ -591,7 +591,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       }
 
       for (const frame of buffer) {
-        //player.enqueueFrame(frame);
+        player.enqueueFrame(frame);
 
         if (pythonWS?.readyState === WebSocket.OPEN) {
           const audioBuffer = Buffer.from(
@@ -612,9 +612,9 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       }
 
       buffer = [];
-      //player.playAll().catch((err) => {
-      //  console.error(`[${callId}] error reproduciendo`, err);
-      //});
+      player.playAll().catch((err) => {
+        console.error(`[${callId}] error reproduciendo`, err);
+      });
     }
   };
 
@@ -1237,7 +1237,7 @@ wss.on("connection", ws =>
       if(returningAudio)
       {
         const frame = bufferToFrame(data);
-        player.enqueueFrame(frame);
+        //player.enqueueFrame(frame);
 
       }
       //console.log("Es binario");
@@ -1253,9 +1253,9 @@ wss.on("connection", ws =>
       if(type === "RETURN_AUDIO_END")
       {
         returningAudio = false;
-        player.playAll().catch((err) => {
-          console.error(`error reproduciendo`, err);
-        });
+        //player.playAll().catch((err) => {
+        //  console.error(`error reproduciendo`, err);
+        //});
 
       }
     }
