@@ -623,7 +623,7 @@ class OpenAIRealtimeSession {
     this.isReady = false;
   }
   
-  track(remoteTrack,pc)
+  track(remoteTrack,pc,callId)
   {
 
     const sink = new RTCAudioSink(remoteTrack);
@@ -917,7 +917,7 @@ async function crearPeer(callId) {
       model: "gpt-realtime",
       instructions: "Habla en español, breve y natural."
     });
-    const loop = realtime.track(remoteTrack,pc);
+    const loop = realtime.track(remoteTrack,pc,callId);
     recursos.loopbacks.push(loop);
 
     //await rt.connect();
