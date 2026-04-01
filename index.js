@@ -20,6 +20,7 @@ const express = require("express");
 const axios = require("axios");
 const crypto = require("crypto");
 const {WebSocket, WebSocketServer } = require("ws");
+const http = require("http");
 
 //const wrtc = require("wrtc");
 
@@ -35,6 +36,8 @@ const {
 const { RTCAudioSource, RTCAudioSink } = nonstandard;
 
 const app = express();
+// 👇 crear servidor HTTP
+const server = http.createServer(app);
 app.use(express.json({limit: "2mb"}));
 
 
@@ -65,7 +68,7 @@ const sessions = new Map();
 // ─────────────────────────────
 let pythonWS = null;
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ server });
 
 wss.on("connection", ws => {
   pythonWS = ws;
@@ -1175,7 +1178,7 @@ app.get("/health", (_req, res) => {
 async function main() {
   assertEnv();
 
-  app.listen(PORT, async () => {
+  server.listen(PORT, async () => {
     console.log(`Servidor escuchando en ${PORT}`);
 
     try {
