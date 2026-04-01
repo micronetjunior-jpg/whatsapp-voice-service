@@ -60,20 +60,23 @@ const callSessions = new Map();
 ========================================================= */
 
 
+async function obtenerIceServers() {
+  const url = `https://rtc.live.cloudflare.com/v1/turn/keys/${TURN_ID}/credentials/generate-ice-servers`;
 
-function generarCredencialesTurn({
-  tokenId,      // tu token_id de Cloudflare
-  apiKey,       // tu API Key
-  ttlSeconds = 3600 // duración (1 hora por defecto)
-}) {
-  const timestamp = Math.floor(Date.now() / 1000) + ttlSeconds;
-  const username = `${timestamp}:${tokenId}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${TURN_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      ttl: 86400 // 24 horas
+    })
+  });
 
-  const hmac = crypto.createHmac("sha1", apiKey);
-  hmac.update(username);
-  const credential = hmac.digest("base64");
+  const data = await response.json();
 
-  return { username, credential };
+  return data.iceServers;
 }
 
 /* =========================================================
@@ -235,7 +238,7 @@ function crearLoopbackTrack(trackEntrada) {
 
 function crearPeerConnection(callId) {
   
-  
+  /*
   const iceServers = [
     {
       urls: [TURN_URL_1, TURN_URL_2, TURNS_URL].filter(Boolean),
@@ -243,13 +246,23 @@ function crearPeerConnection(callId) {
       credential: turn_password,
     },
   ];
+  */
 
+  const iceServers = await obtenerIceServers();
+  
+  const pc = new RTCPeerConnection({
+    iceServers,
+    iceTransportPolicy: "relay"
+  });
+
+  /*
   const pc = new RTCPeerConnection({
     iceTransportPolicy: "relay",
     iceServers,
     bundlePolicy: "max-bundle",
     rtcpMuxPolicy: "require",
   });
+  */
   
 
   //pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
@@ -375,7 +388,7 @@ async function enviarMensajeTexto(to, text) {
   };
 
   const data = await graphPost("/messages", payload);
-  console.log("Mensaje enviado:", data);
+  console.log("Mensaje enviado a:", to);
   return data;
 }
 
@@ -671,19 +684,6 @@ app.listen(PORT, () => {
   console.log(`POST /webhook`);
   console.log(`GET  /health`);
   enviarMensajeTexto("573176429931","Reload NodeJS");
-
-    // ===== USO =====
-  const { username, credential } = generarCredencialesTurn({
-    tokenId: TURN_ID,
-    apiKey: TURN_KEY,
-    ttlSeconds: 3600
-  });
-
-  turn_username = username;
-  turn_password = credential;
-
-  console.log({ turn_username, turn_password });
-
 });
 
 //WKWERNR614A81EBH37T5ATDE recovery code twiilio
