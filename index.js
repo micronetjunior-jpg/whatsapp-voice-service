@@ -1200,7 +1200,19 @@ app.get("/health", (_req, res) => {
 
 
 
+function bufferToFrame(buffer, sampleRate = 48000, channelCount = 1) {
+  const samples = new Int16Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.byteLength / 2
+  );
 
+  return {
+    samples,
+    sampleRate,
+    channelCount
+  };
+}
 
 
 wss.on("connection", ws => 
@@ -1224,7 +1236,8 @@ wss.on("connection", ws =>
     {
       if(returningAudio)
       {
-        player.enqueueFrame(data);
+        const frame = bufferToFrame(data);
+        player.enqueueFrame(frame);
       }
       //console.log("Es binario");
     }
