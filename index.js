@@ -7,9 +7,10 @@ const TURN_URL_1="turn:localhost:3478?transport=tcp";
 const TURN_URL_2="turns:localhost:5349?transport=tcp";
 const TURN_USERNAME="admin"
 const TURN_PASSWORD="1234"
-const ICE_SERVERS = [{ urls: "stun:stun.relay.metered.ca:80" }];
 
-//const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
+//const ICE_SERVERS = [{ urls: "stun:stun.relay.metered.ca:80" }];
+
+const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
 
 
 const PORT = process.env.PORT || 3000;
