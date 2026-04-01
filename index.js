@@ -327,7 +327,7 @@ async function crearPeer(callId) {
   const iceServersRAW = await obtenerIceServersCloudflare();
 
   console.log("ICE SERVERS RAW:");
-  console.log(iceServersRaw);
+  console.log(iceServersRAW);
 
   //const iceServers = iceServersRaw.filter(s => s.username);
   const iceServers = iceServersRAW[1];
