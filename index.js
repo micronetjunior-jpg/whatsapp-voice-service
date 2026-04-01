@@ -597,9 +597,10 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       recording = false;
       console.log(`[${callId}] usuario dejó de hablar. Reproduciendo ${buffer.length} frames`);
 
-      pythonWS?.send(buffer);
+      //pythonWS?.send(buffer);
 
       for (const frame of buffer) {
+        pythonWS?.send(frame);
         player.enqueueFrame(frame);
         
       }
