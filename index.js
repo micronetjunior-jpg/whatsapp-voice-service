@@ -249,6 +249,8 @@ async function crearPeerConnection(callId) {
   */
 
   const iceServers = await obtenerIceServers();
+
+  console.log(iceServers);
   
   const pc = new RTCPeerConnection({
     iceServers,
