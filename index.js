@@ -592,7 +592,6 @@ async function crearPeer(callId) {
 
     const loop = crearEcoPorSilencio(remoteTrack,pc,callId)
 
-
     //const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
     //recursos.sinks.push(sink);
 
