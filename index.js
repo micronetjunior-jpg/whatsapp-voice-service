@@ -86,8 +86,8 @@ function assertEnv() {
   if (!META_TOKEN) missing.push("META_TOKEN");
   if (!PHONE_NUMBER_ID) missing.push("PHONE_NUMBER_ID");
   if (!TURN_URL_1 && !TURN_URL_2) missing.push("TURN_URL_1 o TURN_URL_2");
-  if (!TURN_USERNAME) missing.push("TURN_USERNAME");
-  if (!TURN_PASSWORD) missing.push("TURN_PASSWORD");
+  //if (!TURN_USERNAME) missing.push("TURN_USERNAME");
+  //if (!TURN_PASSWORD) missing.push("TURN_PASSWORD");
 
   if (missing.length) {
     console.error("Faltan variables de entorno:", missing.join(", "));
@@ -238,9 +238,9 @@ function crearPeerConnection(callId) {
   
   const iceServers = [
     {
-      urls: [TURN_URL_1, TURN_URL_2].filter(Boolean),
-      username: TURN_USERNAME,
-      credential: TURN_PASSWORD,
+      urls: [TURN_URL_1, TURN_URL_2, TURNS_URL].filter(Boolean),
+      username: turn_username,
+      credential: turn_password,
     },
   ];
 
