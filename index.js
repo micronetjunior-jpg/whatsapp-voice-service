@@ -664,14 +664,15 @@ async function crearPeer(callId) {
     const remoteTrack = event.track;
     console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
-    //const loop = crearEcoPorSilencio(remoteTrack,pc,callId)
+    const loop = crearEcoPorSilencio(remoteTrack,pc,callId);
+    recursos.loopbacks.push(loop);
 
     //const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
     //recursos.sinks.push(sink);
 
-    const loop = crearLoopbackTrack(remoteTrack, callId);
-    recursos.loopbacks.push(loop);
-    pc.addTrack(loop.track);
+    //const loop = crearLoopbackTrack(remoteTrack, callId);
+    //recursos.loopbacks.push(loop);
+    //pc.addTrack(loop.track);
   };
 
   return { pc, recursos };
