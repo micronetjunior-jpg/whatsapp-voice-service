@@ -928,7 +928,7 @@ async function crearPeer(callId) {
     console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
 
-    ws = crearWsPython(callId);
+    const ws = crearWsPython(callId);
 
 
 
