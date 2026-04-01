@@ -435,7 +435,9 @@ async function crearAnswer(pc, offerSdp) {
   await esperarIceCompleto(pc, 16000);
 
   return new RTCSessionDescription({
-    type: "answer"
+    type: "answer",
+    sdp: answer.sdp
+    //sdp: pc.localDescription.sdp
     //sdp: limpiarSdp(pc.localDescription.sdp)
   });
 
