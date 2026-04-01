@@ -206,14 +206,14 @@ async function esperarIceCompleto(pc, timeoutMs = 16000) {
   
   await new Promise((resolve) => {
     const timer = setTimeout(() => {
-      //pc.removeEventListener("icegatheringstatechange", onChange);
+      pc.removeEventListener("icegatheringstatechange", onChange);
       resolve();
     }, timeoutMs);
 
     function onChange() {
       if (pc.iceGatheringState === "complete") {
         clearTimeout(timer);
-        //pc.removeEventListener("icegatheringstatechange", onChange);
+        pc.removeEventListener("icegatheringstatechange", onChange);
         resolve();
       }
     }
@@ -308,7 +308,7 @@ function crearLoopbackTrack(trackEntrada, callId) {
 
   sink.ondata = (data) => {
     source.onData(data);
-    console.log("Sonido");
+    //console.log(`Sonido: ${data}`);
   };
 
   return {
@@ -340,9 +340,9 @@ function crearReceptorDebug(track, label) {
 
 async function crearPeer(callId) {
 
-  const iceServers = await obtenerIceServersCloudflare();
+  const iceServersRaw = await obtenerIceServersCloudflare();
 
-  //const iceServers = iceServersRaw.filter(s => s.username);
+  const iceServers = iceServersRaw.filter(s => s.username);
 
   const pc = new RTCPeerConnection({
     iceServers,
@@ -364,11 +364,10 @@ async function crearPeer(callId) {
   pc.onicecandidate = (event) => {
     if (!event.candidate) {
       console.log(`[${callId}] ICE gathering finalizado`);
-      //return;
-    }else
-    {
-      console.log(`[${callId}] ICE local: ${event.candidate.candidate}`);
+      return;
     }
+    console.log(`[${callId}] ICE local: ${event.candidate.candidate}`);
+    
   };
 
   pc.oniceconnectionstatechange = () => {
