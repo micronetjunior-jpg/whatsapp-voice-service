@@ -1,3 +1,5 @@
+"use strict";
+
 const VERIFY_TOKEN = "mi_token";
 const META_TOKEN = process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
@@ -5,14 +7,8 @@ const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
 
 const TURN_KEY_API_TOKEN="fe9d45f40d4ceef8106576f2c68e8ce7ec43b0f3f26b2b1e02f3f7b123932626"
 const TURN_KEY_ID = "42bb9e35bfaf45dcf4c1d60e1e035e10";
-const STUN_URL = "stun:stun.cloudflare.com:3478"
-const TURN_URL_1="turn:turn.cloudflare.com:3478?transport=udp";
-const TURN_URL_2="turn:turn.cloudflare.com:3478?transport=tcp";
-const TURNS_URL ="turns:turn.cloudflare.com:5349?transport=tcp"
 
 const PORT = process.env.PORT || 3000;
-
-"use strict";
 
 const express = require("express");
 const axios = require("axios");
@@ -30,6 +26,8 @@ const {
 
 const { RTCAudioSource, RTCAudioSink } = nonstandard;
 
+const app = express();
+app.use(express.json({limit: "2mb"}));
 
 
 //WKWERNR614A81EBH37T5ATDE recovery code twiilio
