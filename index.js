@@ -938,6 +938,11 @@ async function crearPeer(callId) {
     console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
 
+    pythonWS?.send(JSON.stringify({
+      type: "RTP_READY",
+      data: "ok"
+    }));
+
     //const ws = crearWsPython(callId);
 
 
