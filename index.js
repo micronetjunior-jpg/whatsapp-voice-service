@@ -336,13 +336,12 @@ function crearReceptorDebug(track, label) {
 
 async function crearPeer(callId) {
 
-  const iceServersRaw = await obtenerIceServersCloudflare();
+  const iceServers = await obtenerIceServersCloudflare();
 
   //const iceServers = iceServersRaw.filter(s => s.username);
 
   const pc = new RTCPeerConnection({
-    iceServers,
-    iceTransportPolicy: "relay" // en tu caso, forzar TURN
+    iceServers
   });
 
   //console.log("ICE SERVERS:");
