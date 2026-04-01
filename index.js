@@ -612,9 +612,9 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       }
 
       buffer = [];
-      player.playAll().catch((err) => {
-        console.error(`[${callId}] error reproduciendo`, err);
-      });
+      //player.playAll().catch((err) => {
+      //  console.error(`[${callId}] error reproduciendo`, err);
+      //});
     }
   };
 
@@ -1254,7 +1254,7 @@ wss.on("connection", ws =>
       {
         returningAudio = false;
         player.playAll().catch((err) => {
-          console.error(`[${callId}] error reproduciendo`, err);
+          console.error(`error reproduciendo`, err);
         });
 
       }
