@@ -358,10 +358,11 @@ async function crearPeer(callId) {
   pc.onicecandidate = (event) => {
     if (!event.candidate) {
       console.log(`[${callId}] ICE gathering finalizado`);
-      return;
+      //return;
+    }else
+    {
+      console.log(`[${callId}] ICE local: ${event.candidate.candidate}`);
     }
-    console.log(`[${callId}] ICE local: ${event.candidate.candidate}`);
-  
   };
 
   pc.oniceconnectionstatechange = () => {
