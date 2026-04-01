@@ -435,6 +435,8 @@ async function crearAnswer(pc, offerSdp) {
   let answer = await pc.createAnswer();
   
   await pc.setLocalDescription(answer);
+
+  return answer
   
   
 
