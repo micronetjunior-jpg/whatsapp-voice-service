@@ -9,6 +9,9 @@ const TURN_USERNAME="admin"
 const TURN_PASSWORD="1234"
 const ICE_SERVERS = [{ urls: "stun:stun.relay.metered.ca:80" }];
 
+const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
+
+
 const PORT = process.env.PORT || 3000;
 
 "use strict";
