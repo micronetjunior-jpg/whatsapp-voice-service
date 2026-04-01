@@ -19,7 +19,8 @@ const PORT = process.env.PORT || 3000;
 const express = require("express");
 const axios = require("axios");
 const crypto = require("crypto");
-const WebSocket = require("ws");
+import WebSocket, { WebSocketServer } from "ws";
+
 //const wrtc = require("wrtc");
 
 //const { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate, nonstandard } = wrtc;
@@ -53,6 +54,32 @@ const CHANNELS = 1;
 
 const sessions = new Map();
 
+
+
+
+
+
+
+
+
+const server = http.createServer(app);
+
+// ─────────────────────────────
+// WebSocket con Python (control)
+// ─────────────────────────────
+let pythonWS = null;
+
+const wss = new WebSocketServer({ server });
+
+wss.on("connection", ws => {
+  pythonWS = ws;
+  console.log("🐍 Python conectado");
+
+  ws.on("close", () => {
+    pythonWS = null;
+    console.log("🐍 Python desconectado");
+  });
+});
 
 
 
