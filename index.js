@@ -333,27 +333,22 @@ function crearReceptorDebug(track, label) {
 
 async function crearPeer(callId) {
 
-  const iceServersRaw = await obtenerIceServersCloudflare();
+  const iceServers = await obtenerIceServersCloudflare();
 
 
 
-//const pc = new RTCPeerConnection({
-//  iceServers
-  //iceTransportPolicy: "relay" // en tu caso, forzar TURN
-//});
+  const pc = new RTCPeerConnection({
+    iceServers,
+    iceTransportPolicy: "relay" // en tu caso, forzar TURN
+  });
 
   //console.log("ICE SERVERS:");
   //console.log(iceServers);
 
-  const iceServers = iceServersRaw.filter(s => s.username);
+  //const iceServers = iceServersRaw.filter(s => s.username);
 
-  console.log(iceServers);
 
   //const iceServers = iceServersRAW[1];
-
-  const pc = new RTCPeerConnection({
-    iceServers
-  });
 
   const recursos = {
     silentSender: null,
@@ -433,8 +428,6 @@ async function crearAnswer(pc, offerSdp) {
     type: "answer",
     sdp: limpiarSdp(answer.sdp)
   });
-
-  console.log(answer);
 
   await pc.setLocalDescription(answer);
   await esperarIceCompleto(pc, 8000);
