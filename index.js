@@ -324,12 +324,13 @@ function crearReceptorDebug(track, label) {
 ========================= */
 
 async function crearPeer(callId) {
-  const iceServersRaw = await obtenerIceServersCloudflare();
+  const iceServersRAW = await obtenerIceServersCloudflare();
 
   console.log("ICE SERVERS RAW:");
   console.log(iceServersRaw);
 
-  const iceServers = iceServersRaw.filter(s => s.username);
+  //const iceServers = iceServersRaw.filter(s => s.username);
+  const iceServers = iceServersRAW[1];
 
   console.log("ICE SERVERS:");
   console.log(iceServers);
