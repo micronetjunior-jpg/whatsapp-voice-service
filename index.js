@@ -430,10 +430,13 @@ async function crearAnswer(pc, offerSdp) {
   //  type: "answer",
     //sdp: limpiarSdp(answer.sdp)
   //});
-
-  await pc.setLocalDescription(answer);
   await esperarIceCompleto(pc, 16000);
+
   let answer = await pc.createAnswer();
+  
+  await pc.setLocalDescription(answer);
+  
+  
 
   /*
   return new RTCSessionDescription({
