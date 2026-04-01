@@ -597,8 +597,11 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       recording = false;
       console.log(`[${callId}] usuario dejó de hablar. Reproduciendo ${buffer.length} frames`);
 
+      pythonWS?.send(buffer);
+
       for (const frame of buffer) {
         player.enqueueFrame(frame);
+        
       }
 
       buffer = [];
@@ -939,7 +942,7 @@ async function crearPeer(callId) {
 
 
     pythonWS?.send(JSON.stringify({
-      type: "RTP_READY",
+      type: "control",
       data: "ok"
     }));
 
