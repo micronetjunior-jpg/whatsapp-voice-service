@@ -326,11 +326,11 @@ function crearReceptorDebug(track, label) {
 async function crearPeer(callId) {
   const iceServers = await obtenerIceServersCloudflare();
 
+  console.log(iceServers[1])
+
   const pc = new RTCPeerConnection({
     iceServers,
-    iceTransportPolicy: "relay",
-    bundlePolicy: "max-bundle",
-    rtcpMuxPolicy: "require"
+    iceTransportPolicy: "relay"
   });
 
   console.log(iceServers);
@@ -359,6 +359,10 @@ async function crearPeer(callId) {
       console.log(pc.iceConnectionState);
       console.log(pc);
       setTimeout(() => diagnosticarIce(pc, callId), 2000);
+    }
+    else
+    {
+      console.log(pc)
     }
   };
 
