@@ -846,27 +846,7 @@ class OpenAIRealtimeSession {
 
 
 
-function crearWsPython(callId) 
-{
-  const url = "ws://academia";
-  //const url = "wss://academiabot.digital:8765";
 
-  const ws = new WebSocket(url);
-
-  ws.on("open", () => {
-    console.log(`[${callId}] conectado a Python`);
-  });
-
-  ws.on("close", () => {
-    console.log(`[${callId}] WS cerrado`);
-  });
-
-  ws.on("error", (err) => {
-    console.error(`[${callId}] WS error`, err.message);
-  });
-
-  return ws;
-}
 
 
 
