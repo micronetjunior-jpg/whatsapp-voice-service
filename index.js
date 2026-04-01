@@ -489,6 +489,8 @@ async function manejarConnect(call) {
   try {
     const answer = await crearAnswer(pc, offerSdp);
 
+    console.log(answer);
+
     await preAcceptCall(callId, answer.sdp);
     await sleep(400);
     await acceptCall(callId, answer.sdp);
