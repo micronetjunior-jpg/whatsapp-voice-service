@@ -3,16 +3,12 @@ const META_TOKEN = process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
 
 
-const TURN_KEY="fe9d45f40d4ceef8106576f2c68e8ce7ec43b0f3f26b2b1e02f3f7b123932626"
-const TURN_ID = "42bb9e35bfaf45dcf4c1d60e1e035e10";
-const STURN_URL = "stun:stun.cloudflare.com:3478"
+const TURN_KEY_API_TOKEN="fe9d45f40d4ceef8106576f2c68e8ce7ec43b0f3f26b2b1e02f3f7b123932626"
+const TURN_KEY_ID = "42bb9e35bfaf45dcf4c1d60e1e035e10";
+const STUN_URL = "stun:stun.cloudflare.com:3478"
 const TURN_URL_1="turn:turn.cloudflare.com:3478?transport=udp";
 const TURN_URL_2="turn:turn.cloudflare.com:3478?transport=tcp";
 const TURNS_URL ="turns:turn.cloudflare.com:5349?transport=tcp"
-
-let turn_username="academiabot-turn"
-let turn_password="1234"
-
 
 const PORT = process.env.PORT || 3000;
 
@@ -34,82 +30,161 @@ const {
 
 const { RTCAudioSource, RTCAudioSink } = nonstandard;
 
-const app = express();
-app.use(express.json({ limit: "2mb" }));
 
 
-//const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
-//const META_TOKEN = process.env.META_TOKEN;
-//const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+//WKWERNR614A81EBH37T5ATDE recovery code twiilio
 
-//const TURN_URL_1 = process.env.TURN_URL_1;
-//const TURN_URL_2 = process.env.TURN_URL_2;
-//const TURN_USERNAME = process.env.TURN_USERNAME;
-//const TURN_PASSWORD = process.env.TURN_PASSWORD;
+
+
+const RELOAD_NOTIFY_TO = "573176429931";
 
 const GRAPH_BASE = `https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}`;
+const CLOUDFLARE_TURN_URL =
+  `https://rtc.live.cloudflare.com/v1/turn/keys/${TURN_KEY_ID}/credentials/generate-ice-servers`;
 
 const SAMPLE_RATE = 48000;
-const FRAME_SIZE = 480; // 10 ms a 48 kHz
+const FRAME_SIZE = 480; // 10 ms
 
-// Guarda las sesiones activas por call_id
-const callSessions = new Map();
+const sessions = new Map();
 
-/* =========================================================
-   TURN CLOUDFARE
-========================================================= */
-
-
-async function obtenerIceServers() {
-  const url = `https://rtc.live.cloudflare.com/v1/turn/keys/${TURN_ID}/credentials/generate-ice-servers`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${TURN_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      ttl: 86400 // 24 horas
-    })
-  });
-
-  const data = await response.json();
-
-  return data.iceServers;
-}
-
-/* =========================================================
-   HELPERS GENERALES
-========================================================= */
-
-function assertEnv() {
-  const missing = [];
-  if (!VERIFY_TOKEN) missing.push("VERIFY_TOKEN");
-  if (!META_TOKEN) missing.push("META_TOKEN");
-  if (!PHONE_NUMBER_ID) missing.push("PHONE_NUMBER_ID");
-  if (!TURN_URL_1 && !TURN_URL_2) missing.push("TURN_URL_1 o TURN_URL_2");
-  //if (!TURN_USERNAME) missing.push("TURN_USERNAME");
-  //if (!TURN_PASSWORD) missing.push("TURN_PASSWORD");
-
-  if (missing.length) {
-    console.error("Faltan variables de entorno:", missing.join(", "));
-  }
-}
+/* =========================
+   HELPERS
+========================= */
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function esCandidatoTcp(candidateStr = "") {
-  return /\btcp\b/i.test(candidateStr);
+function assertEnv() {
+  const required = [
+    "VERIFY_TOKEN",
+    "META_TOKEN",
+    "PHONE_NUMBER_ID",
+    "TURN_KEY_ID",
+    "TURN_KEY_API_TOKEN"
+  ];
+
+  const missing = required.filter((k) => !process.env[k]);
+  if (missing.length) {
+    throw new Error(`Faltan variables de entorno: ${missing.join(", ")}`);
+  }
 }
 
-function esCandidatoRelay(candidateStr = "") {
-  return /\btyp relay\b/i.test(candidateStr);
+async function graphPost(path, payload) {
+  const res = await fetch(`${GRAPH_BASE}${path}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${META_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`Graph API ${res.status}: ${text}`);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
 }
 
-function limpiarSdpSoloTcp(sdp = "") {
+async function enviarMensajeTexto(to, body) {
+  return graphPost("/messages", {
+    messaging_product: "whatsapp",
+    to,
+    type: "text",
+    text: { body }
+  });
+}
+
+async function preAcceptCall(callId, sdpAnswer) {
+  return graphPost("/calls", {
+    messaging_product: "whatsapp",
+    call_id: callId,
+    action: "pre_accept",
+    session: {
+      sdp_type: "answer",
+      sdp: sdpAnswer
+    }
+  });
+}
+
+async function acceptCall(callId, sdpAnswer) {
+  return graphPost("/calls", {
+    messaging_product: "whatsapp",
+    call_id: callId,
+    action: "accept",
+    session: {
+      sdp_type: "answer",
+      sdp: sdpAnswer
+    }
+  });
+}
+
+async function rejectCall(callId) {
+  return graphPost("/calls", {
+    messaging_product: "whatsapp",
+    call_id: callId,
+    action: "reject"
+  });
+}
+
+async function terminateCall(callId) {
+  return graphPost("/calls", {
+    messaging_product: "whatsapp",
+    call_id: callId,
+    action: "terminate"
+  });
+}
+
+async function obtenerIceServersCloudflare() {
+  const res = await fetch(CLOUDFLARE_TURN_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${TURN_KEY_API_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ ttl: 3600 })
+  });
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`Cloudflare TURN ${res.status}: ${text}`);
+  }
+
+  const data = JSON.parse(text);
+
+  // Filtramos para favorecer TCP/TLS
+  const iceServers = (data.iceServers || []).map((server) => {
+    if (!server.urls) return server;
+
+    const urls = Array.isArray(server.urls) ? server.urls : [server.urls];
+
+    const filtered = urls.filter((u) => {
+      if (u.startsWith("stun:")) return true;
+      if (u.includes("transport=tcp")) return true;
+      return false;
+    });
+
+    return {
+      ...server,
+      urls: filtered.length ? filtered : urls
+    };
+  });
+
+  return iceServers;
+}
+
+function limpiarSdp(sdp) {
+  if (!sdp) return sdp;
+
+  // Dejamos candidates TCP si aparecen en SDP
   return sdp
     .split("\r\n")
     .filter((line) => {
@@ -117,18 +192,6 @@ function limpiarSdpSoloTcp(sdp = "") {
       return /\btcp\b/i.test(line);
     })
     .join("\r\n");
-}
-
-function forzarSetupPassiveEnAnswer(sdp = "") {
-  // En un answer, normalmente conviene passive en DTLS
-  return sdp.replace(/a=setup:actpass/g, "a=setup:passive");
-}
-
-function resumenSdp(sdp = "") {
-  return sdp
-    .split("\r\n")
-    .filter((l) => l.startsWith("m=") || l.startsWith("a=candidate:") || l.startsWith("a=setup:"))
-    .join("\n");
 }
 
 async function esperarIceCompleto(pc, timeoutMs = 8000) {
@@ -152,31 +215,70 @@ async function esperarIceCompleto(pc, timeoutMs = 8000) {
   });
 }
 
-/* =========================================================
-   AUDIO: EMITIR / RECIBIR / LOOPBACK
-========================================================= */
+async function diagnosticarIce(pc, callId = "sin_id") {
+  try {
+    const stats = await pc.getStats();
+    const byId = new Map();
+    let selectedPair = null;
 
-function crearEmisorAudioPrueba() {
+    stats.forEach((report) => {
+      byId.set(report.id, report);
+      if (
+        report.type === "candidate-pair" &&
+        (report.selected === true ||
+          (report.nominated === true && report.state === "succeeded"))
+      ) {
+        selectedPair = report;
+      }
+    });
+
+    console.log(`===== ICE [${callId}] =====`);
+
+    if (!selectedPair) {
+      console.log("No hay candidate pair seleccionado aún");
+      return;
+    }
+
+    const local = byId.get(selectedPair.localCandidateId);
+    const remote = byId.get(selectedPair.remoteCandidateId);
+
+    console.log("LOCAL:", local ? {
+      ip: local.ip || local.address,
+      port: local.port,
+      protocol: local.protocol,
+      candidateType: local.candidateType,
+      relayProtocol: local.relayProtocol,
+      url: local.url
+    } : null);
+
+    console.log("REMOTE:", remote ? {
+      ip: remote.ip || remote.address,
+      port: remote.port,
+      protocol: remote.protocol,
+      candidateType: remote.candidateType,
+      relayProtocol: remote.relayProtocol,
+      url: remote.url
+    } : null);
+  } catch (err) {
+    console.error(`[${callId}] error getStats`, err.message);
+  }
+}
+
+/* =========================
+   AUDIO
+========================= */
+
+function crearEmisorSilencio() {
   const source = new RTCAudioSource();
   const track = source.createTrack();
 
-  let sampleIndex = 0;
-  const freq = 440;
-
   const interval = setInterval(() => {
-    const samples = new Int16Array(FRAME_SIZE);
-
-    for (let i = 0; i < FRAME_SIZE; i++) {
-      const value = Math.sin(2 * Math.PI * freq * (sampleIndex / SAMPLE_RATE));
-      samples[i] = Math.max(-32768, Math.min(32767, value * 12000));
-      sampleIndex++;
-    }
-
+    const samples = new Int16Array(FRAME_SIZE); // silencio
     source.onData({
       samples,
       sampleRate: SAMPLE_RATE,
       bitsPerSample: 16,
-      channelCount: 1,
+      channelCount: 1
     });
   }, 10);
 
@@ -184,33 +286,12 @@ function crearEmisorAudioPrueba() {
     track,
     stop() {
       clearInterval(interval);
-      try {
-        track.stop();
-      } catch {}
-    },
+      try { track.stop(); } catch {}
+    }
   };
 }
 
-function crearReceptorAudio(track, label = "RX") {
-  const sink = new RTCAudioSink(track);
-
-  sink.ondata = (data) => {
-    //console.log(
-    //  `[${label}] frame recibido | samples=${data.samples.length} | sr=${data.sampleRate} | ch=${data.channelCount}`
-    //);
-  };
-
-  return {
-    sink,
-    stop() {
-      try {
-        sink.stop();
-      } catch {}
-    },
-  };
-}
-
-function crearLoopbackTrack(trackEntrada) {
+function crearLoopbackTrack(trackEntrada, callId) {
   const sink = new RTCAudioSink(trackEntrada);
   const source = new RTCAudioSource();
   const trackSalida = source.createTrack();
@@ -222,126 +303,102 @@ function crearLoopbackTrack(trackEntrada) {
   return {
     track: trackSalida,
     stop() {
-      try {
-        sink.stop();
-      } catch {}
-      try {
-        trackSalida.stop();
-      } catch {}
-    },
+      try { sink.stop(); } catch {}
+      try { trackSalida.stop(); } catch {}
+    }
   };
 }
 
-/* =========================================================
+function crearReceptorDebug(track, label) {
+  const sink = new RTCAudioSink(track);
+
+  sink.ondata = (data) => {
+    console.log(`[${label}] frame recibido samples=${data.samples.length} sr=${data.sampleRate}`);
+  };
+
+  return {
+    stop() {
+      try { sink.stop(); } catch {}
+    }
+  };
+}
+
+/* =========================
    WEBRTC
-========================================================= */
+========================= */
 
-async function crearPeerConnection(callId) {
-  
-  /*
-  const iceServers = [
-    {
-      urls: [TURN_URL_1, TURN_URL_2, TURNS_URL].filter(Boolean),
-      username: turn_username,
-      credential: turn_password,
-    },
-  ];
-  */
+async function crearPeer(callId) {
+  const iceServers = await obtenerIceServersCloudflare();
 
-  const iceServers = await obtenerIceServers();
-
-  console.log(iceServers);
-  
   const pc = new RTCPeerConnection({
     iceServers,
-    iceTransportPolicy: "relay"
-  });
-
-  /*
-  const pc = new RTCPeerConnection({
     iceTransportPolicy: "relay",
-    iceServers,
     bundlePolicy: "max-bundle",
-    rtcpMuxPolicy: "require",
+    rtcpMuxPolicy: "require"
   });
-  */
-  
 
-  //pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
-
-    /*const waTrackPromise = new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject("WhatsApp track timeout"), 10000);
-        pc.ontrack = (event) => {
-            clearTimeout(timeout);
-            console.log("🎵 Audio from WhatsApp");
-            //whatsappStream = event.streams[0];
-            resolve();
-        };
-    });*/
-
-  //console.log(pc)
+  const recursos = {
+    silentSender: null,
+    loopbacks: [],
+    sinks: []
+  };
 
   pc.onicecandidate = (event) => {
     if (!event.candidate) {
       console.log(`[${callId}] ICE gathering finalizado`);
       return;
     }
-
-    const cand = event.candidate.candidate || "";
-
-    if (esCandidatoTcp(cand) && esCandidatoRelay(cand)) {
-      console.log(`[${callId}] ICE TCP relay OK: ${cand}`);
-    } else {
-      console.log(`[${callId}] ICE descartado: ${cand}`);
-    }
+    console.log(`[${callId}] ICE local: ${event.candidate.candidate}`);
   };
 
   pc.oniceconnectionstatechange = () => {
     console.log(`[${callId}] iceConnectionState=${pc.iceConnectionState}`);
+
+    if (
+      pc.iceConnectionState === "connected" ||
+      pc.iceConnectionState === "completed"
+    ) {
+      setTimeout(() => diagnosticarIce(pc, callId), 2000);
+    }
   };
 
   pc.onconnectionstatechange = () => {
     console.log(`[${callId}] connectionState=${pc.connectionState}`);
+
+    if (
+      pc.connectionState === "failed" ||
+      pc.connectionState === "closed" ||
+      pc.connectionState === "disconnected"
+    ) {
+      cerrarSesion(callId).catch((e) => {
+        console.error(`[${callId}] error cerrando`, e.message);
+      });
+    }
   };
 
-  pc.onicegatheringstatechange = () => {
-    console.log(`[${callId}] iceGatheringState=${pc.iceGatheringState}`);
-  };
-
-  return pc;
-}
-
-function prepararMediaParaSesion(pc, callId) {
-  const recursos = {
-    emisor: null,
-    receptores: [],
-    loopbacks: [],
-  };
-
-  // Emisor local de prueba
-  recursos.emisor = crearEmisorAudioPrueba();
-  pc.addTrack(recursos.emisor.track);
+  // Track de salida base para que Meta tenga audio saliente
+  recursos.silentSender = crearEmisorSilencio();
+  pc.addTrack(recursos.silentSender.track);
 
   pc.ontrack = (event) => {
-    const incomingTrack = event.track;
-    console.log(`[${callId}] track remoto recibido kind=${incomingTrack.kind}`);
+    const remoteTrack = event.track;
+    console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
-    const receptor = crearReceptorAudio(incomingTrack, `${callId}_IN`);
-    recursos.receptores.push(receptor);
+    const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
+    recursos.sinks.push(sink);
 
-    // Loopback: lo que entra vuelve a salir
-    const loop = crearLoopbackTrack(incomingTrack);
+    const loop = crearLoopbackTrack(remoteTrack, callId);
     recursos.loopbacks.push(loop);
     pc.addTrack(loop.track);
   };
 
-  return recursos;
+  return { pc, recursos };
 }
 
-async function crearAnswerSoloTcp(pc, remoteOfferSdp) {
+async function crearAnswer(pc, offerSdp) {
   const remote = new RTCSessionDescription({
     type: "offer",
-    sdp: limpiarSdpSoloTcp(remoteOfferSdp),
+    sdp: limpiarSdp(offerSdp)
   });
 
   await pc.setRemoteDescription(remote);
@@ -349,201 +406,78 @@ async function crearAnswerSoloTcp(pc, remoteOfferSdp) {
   let answer = await pc.createAnswer();
   answer = new RTCSessionDescription({
     type: "answer",
-    sdp: forzarSetupPassiveEnAnswer(limpiarSdpSoloTcp(answer.sdp)),
+    sdp: limpiarSdp(answer.sdp)
   });
 
   await pc.setLocalDescription(answer);
   await esperarIceCompleto(pc, 8000);
 
-  const finalAnswer = new RTCSessionDescription({
+  return new RTCSessionDescription({
     type: "answer",
-    sdp: forzarSetupPassiveEnAnswer(limpiarSdpSoloTcp(pc.localDescription.sdp)),
+    sdp: limpiarSdp(pc.localDescription.sdp)
   });
-
-  return finalAnswer;
 }
 
-/* =========================================================
-   GRAPH API META
-========================================================= */
+/* =========================
+   SESIONES
+========================= */
 
-async function graphPost(path, payload) {
-  const url = `${GRAPH_BASE}${path}`;
-
-  const response = await axios.post(url, payload, {
-    headers: {
-      Authorization: `Bearer ${META_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    timeout: 20000,
-  });
-
-  return response.data;
-}
-
-async function enviarMensajeTexto(to, text) {
-  const payload = {
-    messaging_product: "whatsapp",
-    to,
-    type: "text",
-    text: { body: text },
-  };
-
-  const data = await graphPost("/messages", payload);
-  console.log("Mensaje enviado a:", to);
-  return data;
-}
-
-async function preAcceptCall(callId, sdpAnswer) {
-  const payload = {
-    messaging_product: "whatsapp",
-    call_id: callId,
-    action: "pre_accept",
-    session: {
-      sdp_type: "answer",
-      sdp: sdpAnswer,
-    },
-  };
-
-  const data = await graphPost("/calls", payload);
-  console.log(`[${callId}] pre_accept OK`, data);
-  return data;
-}
-
-async function acceptCall(callId, sdpAnswer) {
-  const payload = {
-    messaging_product: "whatsapp",
-    call_id: callId,
-    action: "accept",
-    session: {
-      sdp_type: "answer",
-      sdp: sdpAnswer,
-    },
-  };
-
-  const data = await graphPost("/calls", payload);
-  console.log(`[${callId}] accept OK`, data);
-  return data;
-}
-
-async function rejectCall(callId) {
-  const payload = {
-    messaging_product: "whatsapp",
-    call_id: callId,
-    action: "reject",
-  };
-
-  const data = await graphPost("/calls", payload);
-  console.log(`[${callId}] reject OK`, data);
-  return data;
-}
-
-async function terminateCall(callId) {
-  const payload = {
-    messaging_product: "whatsapp",
-    call_id: callId,
-    action: "terminate",
-  };
-
-  const data = await graphPost("/calls", payload);
-  console.log(`[${callId}] terminate OK`, data);
-  return data;
-}
-
-/* =========================================================
-   CICLO DE VIDA DE LLAMADA
-========================================================= */
-
-function cerrarSesion(callId) {
-  const session = callSessions.get(callId);
-  if (!session) return;
+async function cerrarSesion(callId) {
+  const s = sessions.get(callId);
+  if (!s) return;
 
   try {
-    for (const r of session.recursos.receptores) r.stop();
-    for (const l of session.recursos.loopbacks) l.stop();
-    if (session.recursos.emisor) session.recursos.emisor.stop();
-    if (session.pc) session.pc.close();
+    for (const x of s.recursos.sinks) x.stop();
+    for (const x of s.recursos.loopbacks) x.stop();
+    if (s.recursos.silentSender) s.recursos.silentSender.stop();
+    if (s.pc) s.pc.close();
   } catch (err) {
-    console.error(`[${callId}] error cerrando sesión`, err.message);
+    console.error(`[${callId}] error liberando recursos`, err.message);
   }
 
-  callSessions.delete(callId);
+  sessions.delete(callId);
   console.log(`[${callId}] sesión cerrada`);
 }
 
-async function manejarConnectCall(call) {
+async function manejarConnect(call) {
   const callId = call.id || call.call_id || call.callId;
-  const remoteSdp = call.session?.sdp;
+  const offerSdp = call.session?.sdp;
 
-  if (!callId) {
-    console.error("No llegó callId en el evento calls.connect");
+  if (!callId || !offerSdp) {
+    console.error("connect sin callId o sin SDP");
     return;
   }
 
-  if (!remoteSdp) {
-    console.error(`[${callId}] No llegó session.sdp en calls.connect`);
-    return;
-  }
-
-  if (callSessions.has(callId)) {
-    console.log(`[${callId}] ya existe una sesión activa`);
+  if (sessions.has(callId)) {
+    console.log(`[${callId}] sesión ya existe`);
     return;
   }
 
   console.log(`[${callId}] CONNECT recibido`);
-  console.log(`[${callId}] SDP remoto resumen:\n${resumenSdp(remoteSdp)}`);
 
-  const pc = await crearPeerConnection(callId);
-  const recursos = prepararMediaParaSesion(pc, callId);
-
-  callSessions.set(callId, {
-    callId,
-    pc,
-    recursos,
-    state: "connecting",
-  });
+  const { pc, recursos } = await crearPeer(callId);
+  sessions.set(callId, { pc, recursos });
 
   try {
+    const answer = await crearAnswer(pc, offerSdp);
 
-    //sleep(2000)
-    const answer = await crearAnswerSoloTcp(pc, remoteSdp);
-    //sleep(2000)
-    console.log(`[${callId}] SDP answer resumen:\n${resumenSdp(answer.sdp)}`);
-    //sleep(2000)
-
-    // 1) pre_accept
     await preAcceptCall(callId, answer.sdp);
-
-    // Pausa breve para dar tiempo al establecimiento
-    await sleep(500);
-
-    // 2) accept
+    await sleep(400);
     await acceptCall(callId, answer.sdp);
 
-    const session = callSessions.get(callId);
-    if (session) session.state = "accepted";
-
-    console.log(`[${callId}] llamada pre-accept + accept enviada`);
+    console.log(`[${callId}] llamada aceptada`);
   } catch (err) {
-    console.error(
-      `[${callId}] error en connect:`,
-      err.response?.data || err.message
-    );
-
+    console.error(`[${callId}] error connect`, err.message);
     try {
       await rejectCall(callId);
-    } catch (rejectErr) {
-      console.error(
-        `[${callId}] error haciendo reject:`,
-        rejectErr.response?.data || rejectErr.message
-      );
+    } catch (e) {
+      console.error(`[${callId}] error reject`, e.message);
     }
-
-    cerrarSesion(callId);
+    await cerrarSesion(callId);
   }
 }
 
-async function manejarTerminateCall(call) {
+async function manejarTerminate(call) {
   const callId = call.id || call.call_id || call.callId;
   if (!callId) return;
 
@@ -552,18 +486,15 @@ async function manejarTerminateCall(call) {
   try {
     await terminateCall(callId);
   } catch (err) {
-    console.error(
-      `[${callId}] terminate Graph error:`,
-      err.response?.data || err.message
-    );
+    console.error(`[${callId}] terminate Graph error`, err.message);
   }
 
-  cerrarSesion(callId);
+  await cerrarSesion(callId);
 }
 
-/* =========================================================
+/* =========================
    WEBHOOK
-========================================================= */
+========================= */
 
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
@@ -571,121 +502,77 @@ app.get("/webhook", (req, res) => {
   const challenge = req.query["hub.challenge"];
 
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    console.log("Webhook verificado con Meta");
+    console.log("Webhook verificado");
     return res.status(200).send(challenge);
   }
 
-  console.error("Verificación fallida");
   return res.sendStatus(403);
 });
 
 app.post("/webhook", async (req, res) => {
-  // responder rápido a Meta
   res.sendStatus(200);
 
   try {
     const body = req.body;
-    if (!body || body.object !== "whatsapp_business_account") {
-      return;
-    }
+    if (!body || body.object !== "whatsapp_business_account") return;
 
-    const entries = Array.isArray(body.entry) ? body.entry : [];
-
-    for (const entry of entries) {
-      const changes = Array.isArray(entry.changes) ? entry.changes : [];
-
-      for (const change of changes) {
+    for (const entry of body.entry || []) {
+      for (const change of entry.changes || []) {
         const value = change.value || {};
 
-        // Mensajes
-        if (Array.isArray(value.messages) && value.messages.length > 0) {
-          for (const msg of value.messages) {
-            const from = msg.from;
-            const type = msg.type;
-            console.log(`Mensaje recibido from=${from} type=${type}`);
-
-            if (from) {
-              try {
-                await enviarMensajeTexto(from, "Hola 👋 webhook activo y operativo.");
-              } catch (err) {
-                console.error("Error enviando mensaje:", err.response?.data || err.message);
-              }
-            }
-          }
-        }
-
-        // Llamadas
-        if (Array.isArray(value.calls) && value.calls.length > 0) {
+        if (Array.isArray(value.calls)) {
           for (const call of value.calls) {
-            const event = call.event;
-            console.log("Evento de llamada recibido:", event);
+            console.log("Evento llamada:", call.event);
 
-            if (event === "connect") {
-              await manejarConnectCall(call);
-            } else if (event === "terminate") {
-              await manejarTerminateCall(call);
-            } else {
-              console.log("Evento de llamada no manejado:", event);
+            if (call.event === "connect") {
+              await manejarConnect(call);
+            } else if (call.event === "terminate") {
+              await manejarTerminate(call);
             }
           }
         }
       }
     }
   } catch (err) {
-    console.error("Error en POST /webhook:", err.response?.data || err.message);
+    console.error("Error en webhook POST", err.message);
   }
 });
 
-/* =========================================================
-   ENDPOINTS DE APOYO
-========================================================= */
+/* =========================
+   ARRANQUE
+========================= */
 
 app.get("/", (_req, res) => {
-  res.status(200).json({
+  res.json({
     ok: true,
-    service: "meta-call-webrtc-tcp-relay",
-    activeCalls: callSessions.size,
+    activeCalls: sessions.size
   });
 });
 
 app.get("/health", (_req, res) => {
-  res.status(200).json({
+  res.json({
     ok: true,
-    activeCalls: callSessions.size,
-    callIds: Array.from(callSessions.keys()),
+    activeCalls: sessions.size,
+    callIds: [...sessions.keys()]
   });
 });
 
-app.post("/close/:callId", async (req, res) => {
-  const { callId } = req.params;
+async function main() {
+  assertEnv();
 
-  if (!callSessions.has(callId)) {
-    return res.status(404).json({ ok: false, message: "callId no encontrado" });
-  }
+  app.listen(PORT, async () => {
+    console.log(`Servidor escuchando en ${PORT}`);
 
-  try {
-    await terminateCall(callId);
-  } catch (err) {
-    console.error("Error terminando por endpoint:", err.response?.data || err.message);
-  }
+    try {
+      await enviarMensajeTexto(RELOAD_NOTIFY_TO, "Reload Ok");
+      console.log("Mensaje de arranque enviado");
+    } catch (err) {
+      console.error("No se pudo enviar Reload Ok:", err.message);
+    }
+  });
+}
 
-  cerrarSesion(callId);
-
-  return res.status(200).json({ ok: true, message: "Llamada cerrada" });
+main().catch((err) => {
+  console.error("Fallo fatal al iniciar:", err);
+  process.exit(1);
 });
-
-/* =========================================================
-   START
-========================================================= */
-
-assertEnv();
-
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
-  console.log(`GET  /webhook`);
-  console.log(`POST /webhook`);
-  console.log(`GET  /health`);
-  enviarMensajeTexto("573176429931","Reload NodeJS");
-});
-
-//WKWERNR614A81EBH37T5ATDE recovery code twiilio
