@@ -571,14 +571,6 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
 
     const state = detector.update(samples);
 
-    //const base64Audio = int16ToBase64(samples);
-    //realtime.appendAudioBase64(base64Audio);
-
- 
-
-    // logs de depuración ocasionales
-    // console.log(`[${callId}] level=${state.level.toFixed(1)} speaking=${state.speaking}`);
-
     if (state.started && !recording) {
       recording = true;
       buffer = [];
@@ -597,13 +589,26 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       recording = false;
       console.log(`[${callId}] usuario dejó de hablar. Reproduciendo ${buffer.length} frames`);
 
-      //pythonWS?.send(buffer);
-
-      for (const frame of buffer) {
-        pythonWS?.send(frame);
-        player.enqueueFrame(frame);
+      for (const frame of buffer) 
+      {
         
+        player.enqueueFrame(frame);        
+
+        if (pythonWS?.readyState === WebSocket.OPEN) 
+        {
+          const audioBuffer = Buffer.from(
+            frame.samples.buffer,
+            frame.samples.byteOffset,
+            frame.samples.byteLength
+          );
+
+          pythonWS.send(audioBuffer);
+        }
+
       }
+
+
+
 
       buffer = [];
       player.playAll().catch((err) => {
