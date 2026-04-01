@@ -60,16 +60,12 @@ const sessions = new Map();
 
 
 
-
-
-const server = http.createServer(app);
-
 // ─────────────────────────────
 // WebSocket con Python (control)
 // ─────────────────────────────
 let pythonWS = null;
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", ws => {
   pythonWS = ws;
