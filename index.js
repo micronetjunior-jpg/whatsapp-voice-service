@@ -6,6 +6,14 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const TURN_KEY_API_TOKEN=process.env.TURN_KEY_API_TOKEN;
 const TURN_KEY_ID = process.env.TURN_KEY_ID;
 
+const URL_TURN_1 = "turn:turn.cloudflare.com:3478?transport=tcp";
+const URL_TURN_2 = "turns:turn.cloudflare.com:443?transport=tcp";
+const URL_TURN_3 = "turn:turn.cloudflare.com:80?transport=tcp";
+const URL_TURN_4 = "turns:turn.cloudflare.com:5349?transport=tcp";
+
+const TURN_USERNAME = "g0d8cee843b0d9f81f11e446f85eb9933c6e28e313013acf5f7ef7eeccaa85e7";
+const TURN_CREDENTIAL = "bada28e4fe6702129a29ab15f5bc06670b7a61a2f92bdd73c7740c087bcfa868";
+
 const PORT = process.env.PORT || 3000;
 
 const express = require("express");
@@ -324,7 +332,26 @@ function crearReceptorDebug(track, label) {
 ========================= */
 
 async function crearPeer(callId) {
-  const iceServers = await obtenerIceServersCloudflare();
+
+  //const iceServers = await obtenerIceServersCloudflare();
+
+  const iceServers = [
+  {
+    urls: [
+      URL_TURN_1,
+      URL_TURN_2,
+      URL_TURN_3,
+      URL_TURN_4
+    ],
+    TURN_USERNAME,
+    TURN_CREDENTIAL
+  }
+];
+
+const pc = new RTCPeerConnection({
+  iceServers
+  //iceTransportPolicy: "relay" // en tu caso, forzar TURN
+});
 
   console.log("ICE SERVERS:");
   console.log(iceServers);
@@ -336,7 +363,9 @@ async function crearPeer(callId) {
   console.log(`ICE Servers: ${iceServers}`);
 
   const pc = new RTCPeerConnection({
-    iceServers  });
+    iceServers,
+    iceTransportPolicy: "relay"
+  });
 
   const recursos = {
     silentSender: null,
