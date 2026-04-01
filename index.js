@@ -333,6 +333,8 @@ async function crearPeer(callId) {
     rtcpMuxPolicy: "require"
   });
 
+  console.log(iceServers);
+
   const recursos = {
     silentSender: null,
     loopbacks: [],
