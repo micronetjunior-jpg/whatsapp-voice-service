@@ -401,8 +401,8 @@ async function crearPeer(callId) {
   };
 
   // Track de salida base para que Meta tenga audio saliente
-  recursos.silentSender = crearEmisorSilencio();
-  pc.addTrack(recursos.silentSender.track);
+  //recursos.silentSender = crearEmisorSilencio();
+  //pc.addTrack(recursos.silentSender.track);
 
   pc.ontrack = (event) => {
     const remoteTrack = event.track;
