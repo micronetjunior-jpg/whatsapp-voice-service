@@ -378,13 +378,11 @@ async function crearPeer(callId) {
       pc.iceConnectionState === "connected" ||
       pc.iceConnectionState === "completed"
     ) {
-      console.log(pc.iceConnectionState);
-      console.log(pc);
       setTimeout(() => diagnosticarIce(pc, callId), 2000);
     }
     else
     {
-      console.log(pc)
+      console.log(pc.iceConnectionState)
     }
   };
 
