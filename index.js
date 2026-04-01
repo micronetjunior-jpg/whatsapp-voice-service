@@ -26,6 +26,30 @@ const {
     MediaStream,
 } = require("@roamhq/wrtc");
 
+/*
+"""
+SDP ANSWER: v=0
+o=- 3984018964 3984018964 IN IP4 0.0.0.0
+s=-
+t=0 0
+m=audio 9 UDP/TLS/RTP/SAVPF 111
+c=IN IP4 0.0.0.0
+a=fingerprint:sha-256 57:A0:95:29:42:4C:07:DF:17:9D:63:9C:78:FE:0D:A5:FF:FB:D1:31:3C:54:D7:39:03:9D:70:D6:EB:7A:21:47
+a=setup:active
+a=sendrecv
+a=mid:audio
+a=group:BUNDLE audio
+a=rtcp:9 IN IP4 0.0.0.0
+a=msid:43c3476a-189a-45b1-b130-b0258fa5cfcf b8299d42-9b9f-4e5b-a715-b4585d512b8e
+a=msid-semantic:WMS *
+a=ssrc:3143686618 cname:b883d0e6-d146-4236-a63b-c232f9cd0e91
+a=rtpmap:111 opus/48000/2
+a=rtcp-mux
+a=ice-ufrag:ELxP
+a=ice-pwd:CiiShFRzZV09QdZiqwuJKJ
+"""
+*/
+
 const { RTCAudioSource, RTCAudioSink } = nonstandard;
 
 const app = express();
@@ -462,9 +486,12 @@ async function manejarConnectCall(call) {
   });
 
   try {
-    const answer = await crearAnswerSoloTcp(pc, remoteSdp);
 
+    sleep(2000)
+    const answer = await crearAnswerSoloTcp(pc, remoteSdp);
+    sleep(2000)
     console.log(`[${callId}] SDP answer resumen:\n${resumenSdp(answer.sdp)}`);
+    sleep(2000)
 
     // 1) pre_accept
     await preAcceptCall(callId, answer.sdp);
