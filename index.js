@@ -459,7 +459,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
   const detector = new SilenceDetector({
     threshold: 900,
     speechFramesStart: 8,
-    silenceFramesEnd: 800
+    silenceFramesEnd: 80
   });
 
   const player = new BufferedEchoPlayer();
