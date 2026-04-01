@@ -96,6 +96,7 @@ wss.on("connection", ws =>
 
       if (msg.type === "RETURN_AUDIO_START") {
         returningAudio = true;
+        callId = msg.callId || "callId";
         returnSampleRate = msg.sampleRate || 48000;
         returnChannelCount = msg.channelCount || 1;
 
@@ -107,11 +108,11 @@ wss.on("connection", ws =>
 
       if (msg.type === "RETURN_AUDIO_END") {
         returningAudio = false;
-        console.log(`[${callId}] Fin de audio devuelto por Python`);
+        console.log(`Fin de audio devuelto por Python`);
         return;
       }
 
-      console.log(`[${callId}] Control desde Python:`, msg);
+      console.log(`Control desde Python:`, msg);
       return;
     }
 
