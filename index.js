@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 const express = require("express");
 const axios = require("axios");
 const crypto = require("crypto");
-import WebSocket, { WebSocketServer } from "ws";
+const {WebSocket, WebSocketServer } = require("ws");
 
 //const wrtc = require("wrtc");
 
