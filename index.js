@@ -1,12 +1,10 @@
 "use strict";
 
-const VERIFY_TOKEN = "mi_token";
-const META_TOKEN = process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN;
-const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
-
-
-const TURN_KEY_API_TOKEN="fe9d45f40d4ceef8106576f2c68e8ce7ec43b0f3f26b2b1e02f3f7b123932626"
-const TURN_KEY_ID = "42bb9e35bfaf45dcf4c1d60e1e035e10";
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+const META_TOKEN = process.env.META_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+const TURN_KEY_API_TOKEN=process.env.TURN_KEY_API_TOKEN;
+const TURN_KEY_ID = process.env.TURN_KEY_ID;
 
 const PORT = process.env.PORT || 3000;
 
