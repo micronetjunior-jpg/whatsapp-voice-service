@@ -359,17 +359,15 @@ async function crearPeer(callId) {
   pc.onicecandidate = (event) => {
     if (!event.candidate) {
       console.log(`[${callId}] ICE gathering finalizado`);
-      //return;
+      return;
     }
-    else
-    {
-      console.log(`[${callId}] ICE local: ${event.candidate.candidate}`);
-    }
+    console.log(`[${callId}] ICE local: ${event.candidate.candidate}`);
+  
   };
 
   pc.oniceconnectionstatechange = () => {
     console.log(`[${callId}] iceConnectionState=${pc.iceConnectionState}`);
-
+    console.log("ICE Cambió estado...");
     if (
       pc.iceConnectionState === "connected" ||
       pc.iceConnectionState === "completed"
