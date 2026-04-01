@@ -309,7 +309,7 @@ function crearReceptorDebug(track, label) {
   const sink = new RTCAudioSink(track);
 
   sink.ondata = (data) => {
-    console.log(`[${label}] frame recibido samples=${data.samples.length} sr=${data.sampleRate}`);
+    //console.log(`[${label}] frame recibido samples=${data.samples.length} sr=${data.sampleRate}`);
   };
 
   return {
