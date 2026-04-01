@@ -420,12 +420,12 @@ async function crearPeer(callId) {
 async function crearAnswer(pc, offerSdp) {
   const remote = new RTCSessionDescription({
     type: "offer",
-    sdp: limpiarSdp(offerSdp)
+    sdp: offerSdp//limpiarSdp(offerSdp)
   });
 
   await pc.setRemoteDescription(remote);
 
-  let answer = await pc.createAnswer();
+  
   //answer = new RTCSessionDescription({
   //  type: "answer",
     //sdp: limpiarSdp(answer.sdp)
@@ -433,13 +433,16 @@ async function crearAnswer(pc, offerSdp) {
 
   await pc.setLocalDescription(answer);
   await esperarIceCompleto(pc, 16000);
+  let answer = await pc.createAnswer();
 
+  /*
   return new RTCSessionDescription({
     type: "answer",
     sdp: answer.sdp
     //sdp: pc.localDescription.sdp
     //sdp: limpiarSdp(pc.localDescription.sdp)
   });
+  */
 
 }
 
