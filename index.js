@@ -591,7 +591,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       }
 
       for (const frame of buffer) {
-        player.enqueueFrame(frame);
+        //player.enqueueFrame(frame);
 
         if (pythonWS?.readyState === WebSocket.OPEN) {
           const audioBuffer = Buffer.from(
@@ -1224,7 +1224,7 @@ wss.on("connection", ws =>
     {
       if(returningAudio)
       {
-        frames.app
+        player.enqueueFrame(data);
       }
       //console.log("Es binario");
     }
