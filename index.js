@@ -308,7 +308,7 @@ function crearLoopbackTrack(trackEntrada, callId) {
 
   sink.ondata = (data) => {
     source.onData(data);
-    //console.log(`Sonido: ${data}`);
+    console.log(data);
   };
 
   return {
