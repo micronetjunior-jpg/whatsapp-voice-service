@@ -198,7 +198,7 @@ function limpiarSdp(sdp) {
     .join("\r\n");
 }
 
-async function esperarIceCompleto(pc, timeoutMs = 8000) {
+async function esperarIceCompleto(pc, timeoutMs = 16000) {
   
   console.log(pc.iceGatheringState);
   
