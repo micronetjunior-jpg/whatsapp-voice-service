@@ -324,17 +324,15 @@ function crearReceptorDebug(track, label) {
 ========================= */
 
 async function crearPeer(callId) {
-  const iceServersRaw = await obtenerIceServersCloudflare();
-
-  const iceServers = iceServersRaw.filter(s => s.username);
-
-  const pc = new RTCPeerConnection({
-    iceServers,
-    iceTransportPolicy: "relay"
-  });
+  const iceServers = await obtenerIceServersCloudflare()[1];
 
   console.log("ICE SERVERS:");
   console.log(iceServers);
+
+  //const iceServers = iceServersRaw.filter(s => s.username);
+
+  const pc = new RTCPeerConnection({
+    iceServers  });
 
   const recursos = {
     silentSender: null,
