@@ -90,7 +90,7 @@ wss.on("connection", ws =>
       try {
         msg = JSON.parse(data.toString());
       } catch (err) {
-        console.error(`[${callId}] JSON inválido desde Python`);
+        console.error(`JSON inválido desde Python`);
         return;
       }
 
