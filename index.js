@@ -91,7 +91,7 @@ wss.on("connection", ws =>
       console.log("Es binario");
     }
     else{
-      console.log("No es binario");
+      console.log(data);
     }
     
     
