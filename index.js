@@ -819,7 +819,7 @@ class OpenAIRealtimeSession {
 
 function crearWsPython(callId) 
 {
-  url = "ws://academia.railway.internal:8675";
+  const url = "ws://academia.railway.internal:8675";
 
   const ws = new WebSocket(url);
 
@@ -930,13 +930,7 @@ async function crearPeer(callId) {
 
     ws = crearWsPython(callId);
 
-    ws.on("open", () => {
-      ws.send(JSON.stringify({
-        type: "start",
-        callId,
-        sampleRate: 48000
-      }));
-    });
+
 
 
 
