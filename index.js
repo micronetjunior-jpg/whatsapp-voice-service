@@ -568,7 +568,6 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
 
   sink.ondata = async (audio) => {
     const samples = new Int16Array(audio.samples);
-
     const state = detector.update(samples);
 
     if (state.started && !recording) {
@@ -589,13 +588,20 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       recording = false;
       console.log(`[${callId}] usuario dejó de hablar. Reproduciendo ${buffer.length} frames`);
 
-      for (const frame of buffer) 
-      {
-        
-        player.enqueueFrame(frame);        
+      if (pythonWS?.readyState === WebSocket.OPEN) {
+        pythonWS.send(JSON.stringify({
+          type: "TURN_AUDIO_START",
+          callId,
+          frames: buffer.length,
+          sampleRate: buffer[0]?.sampleRate || 48000,
+          channelCount: buffer[0]?.channelCount || 1
+        }));
+      }
 
-        if (pythonWS?.readyState === WebSocket.OPEN) 
-        {
+      for (const frame of buffer) {
+        player.enqueueFrame(frame);
+
+        if (pythonWS?.readyState === WebSocket.OPEN) {
           const audioBuffer = Buffer.from(
             frame.samples.buffer,
             frame.samples.byteOffset,
@@ -604,11 +610,14 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
 
           pythonWS.send(audioBuffer);
         }
-
       }
 
-
-
+      if (pythonWS?.readyState === WebSocket.OPEN) {
+        pythonWS.send(JSON.stringify({
+          type: "TURN_AUDIO_END",
+          callId
+        }));
+      }
 
       buffer = [];
       player.playAll().catch((err) => {
@@ -617,13 +626,8 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
     }
   };
 
-  return {
-    track: player.track,
-    stop() {
-      try { sink.stop(); } catch {}
-      try { player.stop(); } catch {}
-    }
-  };
+
+
 }
 
 
