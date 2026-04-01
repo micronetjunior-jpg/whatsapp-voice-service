@@ -491,11 +491,11 @@ async function manejarConnectCall(call) {
 
   try {
 
-    sleep(2000)
+    //sleep(2000)
     const answer = await crearAnswerSoloTcp(pc, remoteSdp);
-    sleep(2000)
+    //sleep(2000)
     console.log(`[${callId}] SDP answer resumen:\n${resumenSdp(answer.sdp)}`);
-    sleep(2000)
+    //sleep(2000)
 
     // 1) pre_accept
     await preAcceptCall(callId, answer.sdp);
