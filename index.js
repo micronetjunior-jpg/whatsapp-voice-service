@@ -817,6 +817,30 @@ class OpenAIRealtimeSession {
 
 
 
+function crearWsPython(callId) 
+{
+  url = "ws://academia.railway.internal:8675";
+
+  const ws = new WebSocket(url);
+
+  ws.on("open", () => {
+    console.log(`[${callId}] conectado a Python`);
+  });
+
+  ws.on("close", () => {
+    console.log(`[${callId}] WS cerrado`);
+  });
+
+  ws.on("error", (err) => {
+    console.error(`[${callId}] WS error`, err.message);
+  });
+
+  return ws;
+}
+
+
+
+
 
 
 
@@ -904,7 +928,15 @@ async function crearPeer(callId) {
     console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
 
+    ws = crearWsPython(callId);
 
+    ws.on("open", () => {
+      ws.send(JSON.stringify({
+        type: "start",
+        callId,
+        sampleRate: 48000
+      }));
+    });
 
 
 
