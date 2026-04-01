@@ -3,14 +3,14 @@ const META_TOKEN = process.env.HEALTHCARE_WHATSAPP_ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.HEALTHCARE_WHATSAPP_PHONE_NUMBER_ID;
 
 
-const TURN_URL_1="turn:localhost:3478?transport=tcp";
-const TURN_URL_2="turns:localhost:5349?transport=tcp";
-const TURN_USERNAME="admin"
+const TURN_KEY="fe9d45f40d4ceef8106576f2c68e8ce7ec43b0f3f26b2b1e02f3f7b123932626"
+const TURN_ID = "42bb9e35bfaf45dcf4c1d60e1e035e10";
+const STURN_URL = "stun:stun.cloudflare.com:3478"
+const TURN_URL_1="turn:turn.cloudflare.com:3478?transport=udp";
+const TURN_URL_2="turn:turn.cloudflare.com:3478?transport=tcp";
+const TURNS_URL ="turns:turn.cloudflare.com:5349?transport=tcp"
+const TURN_USERNAME="academiabot-turn"
 const TURN_PASSWORD="1234"
-
-//const ICE_SERVERS = [{ urls: "stun:stun.relay.metered.ca:80" }];
-
-//const ICE_SERVERS = [{ urls: "stun:stun.l.google.com:19302" }];
 
 
 const PORT = process.env.PORT || 3000;
@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 
 const express = require("express");
 const axios = require("axios");
+const crypto = require("crypto");
 //const wrtc = require("wrtc");
 
 //const { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate, nonstandard } = wrtc;
@@ -29,30 +30,6 @@ const {
     RTCIceCandidate,
     MediaStream,
 } = require("@roamhq/wrtc");
-
-/*
-"""
-SDP ANSWER: v=0
-o=- 3984018964 3984018964 IN IP4 0.0.0.0
-s=-
-t=0 0
-m=audio 9 UDP/TLS/RTP/SAVPF 111
-c=IN IP4 0.0.0.0
-a=fingerprint:sha-256 57:A0:95:29:42:4C:07:DF:17:9D:63:9C:78:FE:0D:A5:FF:FB:D1:31:3C:54:D7:39:03:9D:70:D6:EB:7A:21:47
-a=setup:active
-a=sendrecv
-a=mid:audio
-a=group:BUNDLE audio
-a=rtcp:9 IN IP4 0.0.0.0
-a=msid:43c3476a-189a-45b1-b130-b0258fa5cfcf b8299d42-9b9f-4e5b-a715-b4585d512b8e
-a=msid-semantic:WMS *
-a=ssrc:3143686618 cname:b883d0e6-d146-4236-a63b-c232f9cd0e91
-a=rtpmap:111 opus/48000/2
-a=rtcp-mux
-a=ice-ufrag:ELxP
-a=ice-pwd:CiiShFRzZV09QdZiqwuJKJ
-"""
-*/
 
 const { RTCAudioSource, RTCAudioSink } = nonstandard;
 
@@ -76,6 +53,27 @@ const FRAME_SIZE = 480; // 10 ms a 48 kHz
 
 // Guarda las sesiones activas por call_id
 const callSessions = new Map();
+
+/* =========================================================
+   TURN CLOUDFARE
+========================================================= */
+
+
+
+function generarCredencialesTurn({
+  tokenId,      // tu token_id de Cloudflare
+  apiKey,       // tu API Key
+  ttlSeconds = 3600 // duración (1 hora por defecto)
+}) {
+  const timestamp = Math.floor(Date.now() / 1000) + ttlSeconds;
+  const username = `${timestamp}:${tokenId}`;
+
+  const hmac = crypto.createHmac("sha1", apiKey);
+  hmac.update(username);
+  const credential = hmac.digest("base64");
+
+  return { username, credential };
+}
 
 /* =========================================================
    HELPERS GENERALES
@@ -671,7 +669,17 @@ app.listen(PORT, () => {
   console.log(`GET  /webhook`);
   console.log(`POST /webhook`);
   console.log(`GET  /health`);
-  enviarMensajeTexto("573176429931","Reload NodeJS")
+  enviarMensajeTexto("573176429931","Reload NodeJS");
+
+    // ===== USO =====
+  const { username, credential } = generarCredencialesTurn({
+    tokenId: TURN_ID,
+    apiKey: TURN_KEY,
+    ttlSeconds: 3600
+  });
+
+  console.log({ username, credential });
+
 });
 
 //WKWERNR614A81EBH37T5ATDE recovery code twiilio
