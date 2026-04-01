@@ -1238,6 +1238,7 @@ wss.on("connection", ws =>
       {
         const frame = bufferToFrame(data);
         player.enqueueFrame(frame);
+
       }
       //console.log("Es binario");
     }
@@ -1252,6 +1253,10 @@ wss.on("connection", ws =>
       if(type === "RETURN_AUDIO_END")
       {
         returningAudio = false;
+        player.playAll().catch((err) => {
+          console.error(`[${callId}] error reproduciendo`, err);
+        });
+
       }
     }
     
