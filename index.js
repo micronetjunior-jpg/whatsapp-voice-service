@@ -335,8 +335,6 @@ async function crearPeer(callId) {
 
   const iceServers = await obtenerIceServersCloudflare();
 
-
-
   const pc = new RTCPeerConnection({
     iceServers,
     iceTransportPolicy: "relay" // en tu caso, forzar TURN
