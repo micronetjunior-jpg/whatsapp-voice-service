@@ -335,10 +335,16 @@ async function crearPeer(callId) {
 
   //const iceServers = await obtenerIceServersCloudflare();
 
-
-  iceServers = [
+  const pc = new RTCPeerConnection({
+  iceServers: [
     {
-      "urls": [
+      urls: [
+        "stun:stun.cloudflare.com:3478",
+        "stun:stun.cloudflare.com:53"
+      ]
+    },
+    {
+      urls: [
         URL_TURN_1,
         URL_TURN_2,
         URL_TURN_3,
@@ -346,8 +352,10 @@ async function crearPeer(callId) {
       ],
       "username": TURN_USERNAME,
       "credential": TURN_CREDENTIAL
-    }
-  ];
+    },
+  ],
+});
+
 
 
 //const pc = new RTCPeerConnection({
@@ -355,16 +363,16 @@ async function crearPeer(callId) {
   //iceTransportPolicy: "relay" // en tu caso, forzar TURN
 //});
 
-  console.log("ICE SERVERS:");
-  console.log(iceServers);
+  //console.log("ICE SERVERS:");
+  //console.log(iceServers);
 
   //const iceServers = iceServersRaw.filter(s => s.username);
   //const iceServers = iceServersRAW[1];
 
-  const pc = new RTCPeerConnection({
+  /*const pc = new RTCPeerConnection({
     iceServers,
     iceTransportPolicy: "relay"
-  });
+  });*/
 
   const recursos = {
     silentSender: null,
