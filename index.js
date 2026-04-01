@@ -290,7 +290,7 @@ function crearEmisorSilencio() {
       bitsPerSample: 16,
       channelCount: 1
     });
-  }, 10);
+  }, 20);
 
   return {
     track,
