@@ -434,6 +434,8 @@ async function crearAnswer(pc, offerSdp) {
     sdp: limpiarSdp(answer.sdp)
   });
 
+  console.log(answer);
+
   await pc.setLocalDescription(answer);
   await esperarIceCompleto(pc, 8000);
 
@@ -441,6 +443,7 @@ async function crearAnswer(pc, offerSdp) {
     type: "answer",
     sdp: limpiarSdp(pc.localDescription.sdp)
   });
+
 }
 
 /* =========================
