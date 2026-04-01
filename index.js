@@ -70,38 +70,7 @@ let pythonWS = null;
 
 const wss = new WebSocketServer({ server });
 
-wss.on("connection", ws => 
-  {
-  pythonWS = ws;
-  console.log("🐍 Python conectado");
 
-  ws.on("close", () => {
-    pythonWS = null;
-    console.log("🐍 Python desconectado");
-  });
-
-  let returningAudio = false;
-  let returnSampleRate = 48000;
-  let returnChannelCount = 1;
-
-  pythonWS.on("message", async (data, isBinary) => {
-
-    if(isBinary)
-    {
-      //console.log("Es binario");
-    }
-    else{
-      const msg = JSON.parse(data.toString());
-      const type = msg.type;
-      const callId = msg.callId;
-      console.log(type);
-    }
-    
-    
-  });
-
-
-});
 
 
 
@@ -572,7 +541,7 @@ class BufferedEchoPlayer {
 
 
 
-
+const player = new BufferedEchoPlayer();
 
 // ===== Conecta un track remoto a eco por turnos =====
 function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
@@ -583,7 +552,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
     silenceFramesEnd: 80
   });
 
-  const player = new BufferedEchoPlayer();
+  
   pc.addTrack(player.track);
 
   let buffer = [];
@@ -1221,6 +1190,78 @@ app.get("/health", (_req, res) => {
     callIds: [...sessions.keys()]
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+wss.on("connection", ws => 
+  {
+  pythonWS = ws;
+  console.log("🐍 Python conectado");
+
+  ws.on("close", () => {
+    pythonWS = null;
+    console.log("🐍 Python desconectado");
+  });
+
+  let returningAudio = false;
+  let returnSampleRate = 48000;
+  let returnChannelCount = 1;
+  let frames = [];
+
+  pythonWS.on("message", async (data, isBinary) => {
+
+    if(isBinary)
+    {
+      if(returningAudio)
+      {
+        frames.app
+      }
+      //console.log("Es binario");
+    }
+    else{
+      const msg = JSON.parse(data.toString());
+      const type = msg.type;
+      const callId = msg.callId;
+      if(type === "RETURN_AUDIO_START")
+      {
+        returningAudio = true;
+      }
+      if(type === "RETURN_AUDIO_END")
+      {
+        returningAudio = false;
+      }
+    }
+    
+    
+  });
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async function main() {
   assertEnv();
