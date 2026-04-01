@@ -199,8 +199,11 @@ function limpiarSdp(sdp) {
 }
 
 async function esperarIceCompleto(pc, timeoutMs = 8000) {
-  if (pc.iceGatheringState === "complete") return;
+  
   console.log(pc.iceGatheringState);
+  
+  if (pc.iceGatheringState === "complete") return;
+  
   await new Promise((resolve) => {
     const timer = setTimeout(() => {
       //pc.removeEventListener("icegatheringstatechange", onChange);
