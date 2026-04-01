@@ -308,7 +308,6 @@ function crearLoopbackTrack(trackEntrada, callId) {
 
   sink.ondata = (data) => {
     source.onData(data);
-    console.log(data);
   };
 
   return {
@@ -330,6 +329,189 @@ function crearReceptorDebug(track, label) {
   return {
     stop() {
       try { sink.stop(); } catch {}
+    }
+  };
+}
+
+
+const SAMPLE_RATE = 48000;
+const FRAME_SIZE = 480; // 10 ms
+const CHANNELS = 1;
+
+// ===== Detector simple de silencio =====
+class SilenceDetector {
+  constructor({
+    threshold = 900,
+    speechFramesStart = 6,
+    silenceFramesEnd = 30
+  } = {}) {
+    this.threshold = threshold;
+    this.speechFramesStart = speechFramesStart;
+    this.silenceFramesEnd = silenceFramesEnd;
+
+    this.speechCount = 0;
+    this.silenceCount = 0;
+    this.isSpeaking = false;
+  }
+
+  rms(int16Samples) {
+    let sum = 0;
+    for (let i = 0; i < int16Samples.length; i++) {
+      const s = int16Samples[i];
+      sum += s * s;
+    }
+    return Math.sqrt(sum / int16Samples.length);
+  }
+
+  update(samples) {
+    const level = this.rms(samples);
+    const silent = level < this.threshold;
+
+    if (!this.isSpeaking) {
+      if (!silent) {
+        this.speechCount += 1;
+        if (this.speechCount >= this.speechFramesStart) {
+          this.isSpeaking = true;
+          this.silenceCount = 0;
+        }
+      } else {
+        this.speechCount = 0;
+      }
+      return {
+        level,
+        silent,
+        started: this.isSpeaking,
+        ended: false,
+        speaking: this.isSpeaking
+      };
+    }
+
+    // ya está hablando
+    if (silent) {
+      this.silenceCount += 1;
+      if (this.silenceCount >= this.silenceFramesEnd) {
+        this.isSpeaking = false;
+        this.speechCount = 0;
+        this.silenceCount = 0;
+        return {
+          level,
+          silent,
+          started: false,
+          ended: true,
+          speaking: false
+        };
+      }
+    } else {
+      this.silenceCount = 0;
+    }
+
+    return {
+      level,
+      silent,
+      started: false,
+      ended: false,
+      speaking: true
+    };
+  }
+}
+
+// ===== Reproductor de frames =====
+class BufferedEchoPlayer {
+  constructor() {
+    this.source = new RTCAudioSource();
+    this.track = this.source.createTrack();
+    this.queue = [];
+    this.playing = false;
+  }
+
+  enqueueFrame(frame) {
+    this.queue.push(frame);
+  }
+
+  async playAll() {
+    if (this.playing) return;
+    this.playing = true;
+
+    while (this.queue.length > 0) {
+      const frame = this.queue.shift();
+
+      this.source.onData({
+        samples: frame.samples,
+        sampleRate: frame.sampleRate,
+        bitsPerSample: 16,
+        channelCount: frame.channelCount
+      });
+
+      await new Promise((r) => setTimeout(r, 10));
+    }
+
+    this.playing = false;
+  }
+
+  stop() {
+    try {
+      this.track.stop();
+    } catch {}
+  }
+}
+
+// ===== Conecta un track remoto a eco por turnos =====
+function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
+  const sink = new RTCAudioSink(remoteTrack);
+  const detector = new SilenceDetector({
+    threshold: 900,
+    speechFramesStart: 6,
+    silenceFramesEnd: 30
+  });
+
+  const player = new BufferedEchoPlayer();
+  pc.addTrack(player.track);
+
+  let buffer = [];
+  let recording = false;
+
+  sink.ondata = async (audio) => {
+    const samples = new Int16Array(audio.samples);
+
+    const state = detector.update(samples);
+
+    // logs de depuración ocasionales
+    // console.log(`[${callId}] level=${state.level.toFixed(1)} speaking=${state.speaking}`);
+
+    if (state.started && !recording) {
+      recording = true;
+      buffer = [];
+      console.log(`[${callId}] usuario empezó a hablar`);
+    }
+
+    if (recording) {
+      buffer.push({
+        samples: new Int16Array(samples),
+        sampleRate: audio.sampleRate,
+        channelCount: audio.channelCount
+      });
+    }
+
+    if (state.ended && recording) {
+      recording = false;
+      console.log(`[${callId}] usuario dejó de hablar. Reproduciendo ${buffer.length} frames`);
+
+      for (const frame of buffer) {
+        player.enqueueFrame(frame);
+      }
+
+      buffer = [];
+      player.playAll().catch((err) => {
+        console.error(`[${callId}] error reproduciendo`, err);
+      });
+    }
+  };
+
+  return {
+    track: player.track,
+    stop() {
+      try { sink.stop(); } catch {}
+      try { player.stop(); } catch {}
     }
   };
 }
@@ -378,7 +560,7 @@ async function crearPeer(callId) {
       pc.iceConnectionState === "completed"
     ) {
       console.log("DIAGNOSTICAR...");
-      setTimeout(() => diagnosticarIce(pc, callId), 1000);
+      //setTimeout(() => diagnosticarIce(pc, callId), 1000);
     }
     else
     {
@@ -408,12 +590,14 @@ async function crearPeer(callId) {
     const remoteTrack = event.track;
     console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
-    const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
-    recursos.sinks.push(sink);
+    const loop = this.crearEcoPorSilencio(remoteTrack,pc,callId)
 
-    const loop = crearLoopbackTrack(remoteTrack, callId);
+    //const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
+    //recursos.sinks.push(sink);
+
+    //const loop = crearLoopbackTrack(remoteTrack, callId);
     recursos.loopbacks.push(loop);
-    pc.addTrack(loop.track);
+    //pc.addTrack(loop.track);
   };
 
   return { pc, recursos };
