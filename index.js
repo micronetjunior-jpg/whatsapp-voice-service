@@ -339,12 +339,6 @@ async function crearPeer(callId) {
   iceServers: [
     {
       urls: [
-        "stun:stun.cloudflare.com:3478",
-        "stun:stun.cloudflare.com:53"
-      ]
-    },
-    {
-      urls: [
         URL_TURN_1,
         URL_TURN_2,
         URL_TURN_3,
