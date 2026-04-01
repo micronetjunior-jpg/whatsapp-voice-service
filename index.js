@@ -819,7 +819,7 @@ class OpenAIRealtimeSession {
 
 function crearWsPython(callId) 
 {
-  const url = "ws://academia.railway.internal:8675";
+  const url = "ws://academia.railway.internal:8765";
 
   const ws = new WebSocket(url);
 
