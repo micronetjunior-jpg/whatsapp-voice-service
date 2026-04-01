@@ -85,51 +85,10 @@ wss.on("connection", ws =>
   let returnChannelCount = 1;
 
   pythonWS.on("message", async (data, isBinary) => {
-    if (!isBinary) {
-      let msg;
-      try {
-        msg = JSON.parse(data.toString());
-      } catch (err) {
-        console.error(`JSON inválido desde Python`);
-        return;
-      }
 
-      if (msg.type === "RETURN_AUDIO_START") {
-        returningAudio = true;
-        callId = msg.callId || "callId";
-        returnSampleRate = msg.sampleRate || 48000;
-        returnChannelCount = msg.channelCount || 1;
-
-        console.log(
-          `[${callId}] Python devolverá ${msg.chunks} chunks`
-        );
-        return;
-      }
-
-      if (msg.type === "RETURN_AUDIO_END") {
-        returningAudio = false;
-        console.log(`Fin de audio devuelto por Python`);
-        return;
-      }
-
-      console.log(`Control desde Python:`, msg);
-      return;
-    }
-
-
-    /*
-    if (returningAudio) {
-      reproducirChunkEnSource(
-        player.source,
-        data,
-        returnSampleRate,
-        returnChannelCount
-      );
-    }
-    */
-
+    console.log(data);
+    
   });
-
 
 
 });
