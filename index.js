@@ -86,7 +86,14 @@ wss.on("connection", ws =>
 
   pythonWS.on("message", async (data, isBinary) => {
 
-    console.log(data);
+    if(isBinary)
+    {
+      console.log("Es binario");
+    }
+    else{
+      console.log("No es binario");
+    }
+    
     
   });
 
