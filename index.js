@@ -338,7 +338,7 @@ async function crearPeer(callId) {
 
   const iceServersRaw = await obtenerIceServersCloudflare();
 
-  const iceServers = iceServersRaw.filter(s => s.username);
+  //const iceServers = iceServersRaw.filter(s => s.username);
 
   const pc = new RTCPeerConnection({
     iceServers,
