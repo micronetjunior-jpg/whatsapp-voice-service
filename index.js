@@ -645,54 +645,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
 
 
 
-let returningAudio = false;
-let returnSampleRate = 48000;
-let returnChannelCount = 1;
 
-pythonWS.on("message", async (data, isBinary) => {
-  if (!isBinary) {
-    let msg;
-    try {
-      msg = JSON.parse(data.toString());
-    } catch (err) {
-      console.error(`[${callId}] JSON inválido desde Python`);
-      return;
-    }
-
-    if (msg.type === "RETURN_AUDIO_START") {
-      returningAudio = true;
-      returnSampleRate = msg.sampleRate || 48000;
-      returnChannelCount = msg.channelCount || 1;
-
-      console.log(
-        `[${callId}] Python devolverá ${msg.chunks} chunks`
-      );
-      return;
-    }
-
-    if (msg.type === "RETURN_AUDIO_END") {
-      returningAudio = false;
-      console.log(`[${callId}] Fin de audio devuelto por Python`);
-      return;
-    }
-
-    console.log(`[${callId}] Control desde Python:`, msg);
-    return;
-  }
-
-
-  /*
-  if (returningAudio) {
-    reproducirChunkEnSource(
-      player.source,
-      data,
-      returnSampleRate,
-      returnChannelCount
-    );
-  }
-  */
-
-});
 
 
 
@@ -920,6 +873,62 @@ class OpenAIRealtimeSession {
 
 
 
+
+
+
+
+
+
+
+
+let returningAudio = false;
+let returnSampleRate = 48000;
+let returnChannelCount = 1;
+
+pythonWS.on("message", async (data, isBinary) => {
+  if (!isBinary) {
+    let msg;
+    try {
+      msg = JSON.parse(data.toString());
+    } catch (err) {
+      console.error(`[${callId}] JSON inválido desde Python`);
+      return;
+    }
+
+    if (msg.type === "RETURN_AUDIO_START") {
+      returningAudio = true;
+      returnSampleRate = msg.sampleRate || 48000;
+      returnChannelCount = msg.channelCount || 1;
+
+      console.log(
+        `[${callId}] Python devolverá ${msg.chunks} chunks`
+      );
+      return;
+    }
+
+    if (msg.type === "RETURN_AUDIO_END") {
+      returningAudio = false;
+      console.log(`[${callId}] Fin de audio devuelto por Python`);
+      return;
+    }
+
+    console.log(`[${callId}] Control desde Python:`, msg);
+    return;
+  }
+
+
+  /*
+  if (returningAudio) {
+    reproducirChunkEnSource(
+      player.source,
+      data,
+      returnSampleRate,
+      returnChannelCount
+    );
+  }
+  */
+
+});
 
 
 
