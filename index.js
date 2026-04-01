@@ -336,6 +336,31 @@ function crearReceptorDebug(track, label) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ===== Detector simple de silencio =====
 class SilenceDetector {
   constructor({
@@ -413,6 +438,14 @@ class SilenceDetector {
   }
 }
 
+
+
+
+
+
+
+
+
 // ===== Reproductor de frames =====
 class BufferedEchoPlayer {
   constructor() {
@@ -453,6 +486,16 @@ class BufferedEchoPlayer {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
 // ===== Conecta un track remoto a eco por turnos =====
 function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
   const sink = new RTCAudioSink(remoteTrack);
@@ -472,6 +515,11 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
     const samples = new Int16Array(audio.samples);
 
     const state = detector.update(samples);
+
+    //const base64Audio = int16ToBase64(samples);
+    //realtime.appendAudioBase64(base64Audio);
+
+ 
 
     // logs de depuración ocasionales
     // console.log(`[${callId}] level=${state.level.toFixed(1)} speaking=${state.speaking}`);
@@ -588,14 +636,14 @@ async function crearPeer(callId) {
     const remoteTrack = event.track;
     console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
-    const loop = crearEcoPorSilencio(remoteTrack,pc,callId)
+    //const loop = crearEcoPorSilencio(remoteTrack,pc,callId)
 
     //const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
     //recursos.sinks.push(sink);
 
-    //const loop = crearLoopbackTrack(remoteTrack, callId);
+    const loop = crearLoopbackTrack(remoteTrack, callId);
     recursos.loopbacks.push(loop);
-    //pc.addTrack(loop.track);
+    pc.addTrack(loop.track);
   };
 
   return { pc, recursos };
