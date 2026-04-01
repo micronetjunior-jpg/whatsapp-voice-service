@@ -91,7 +91,9 @@ wss.on("connection", ws =>
       console.log("Es binario");
     }
     else{
-      console.log(data);
+      const msg = JSON.parse(data.toString());
+
+      console.log(msg);
     }
     
     
