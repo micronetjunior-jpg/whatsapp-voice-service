@@ -426,17 +426,17 @@ async function crearAnswer(pc, offerSdp) {
   await pc.setRemoteDescription(remote);
 
   let answer = await pc.createAnswer();
-  answer = new RTCSessionDescription({
-    type: "answer",
-    sdp: limpiarSdp(answer.sdp)
-  });
+  //answer = new RTCSessionDescription({
+  //  type: "answer",
+    //sdp: limpiarSdp(answer.sdp)
+  //});
 
   await pc.setLocalDescription(answer);
-  await esperarIceCompleto(pc, 8000);
+  await esperarIceCompleto(pc, 16000);
 
   return new RTCSessionDescription({
-    type: "answer",
-    sdp: limpiarSdp(pc.localDescription.sdp)
+    type: "answer"
+    //sdp: limpiarSdp(pc.localDescription.sdp)
   });
 
 }
