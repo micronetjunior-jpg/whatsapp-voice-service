@@ -817,6 +817,9 @@ class OpenAIRealtimeSession {
 
 
 
+
+
+
 function crearWsPython(callId) 
 {
   const url = "ws://academia.railway.internal:8765";
