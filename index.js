@@ -220,6 +220,9 @@ async function esperarIceCompleto(pc, timeoutMs = 8000) {
 }
 
 async function diagnosticarIce(pc, callId = "sin_id") {
+
+  console.log(`===== ICE [${callId}] =====`);
+
   try {
     const stats = await pc.getStats();
     const byId = new Map();
@@ -236,7 +239,7 @@ async function diagnosticarIce(pc, callId = "sin_id") {
       }
     });
 
-    console.log(`===== ICE [${callId}] =====`);
+    
 
     if (!selectedPair) {
       console.log("No hay candidate pair seleccionado aún");
@@ -371,6 +374,7 @@ async function crearPeer(callId) {
       pc.iceConnectionState === "connected" ||
       pc.iceConnectionState === "completed"
     ) {
+      console.log("DIAGNOSTICAR...");
       setTimeout(() => diagnosticarIce(pc, callId), 2000);
     }
     else
