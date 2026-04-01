@@ -344,9 +344,11 @@ async function crearPeer(callId) {
   //const iceServers = iceServersRaw.filter(s => s.username);
 
   const pc = new RTCPeerConnection({
-    iceServers
+    iceServers,
+    iceTransportPolicy: "relay"
   });
 
+  
   //console.log("ICE SERVERS:");
   //console.log(iceServers);
 
