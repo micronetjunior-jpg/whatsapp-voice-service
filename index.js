@@ -88,12 +88,13 @@ wss.on("connection", ws =>
 
     if(isBinary)
     {
-      console.log("Es binario");
+      //console.log("Es binario");
     }
     else{
       const msg = JSON.parse(data.toString());
-
-      console.log(msg);
+      const type = msg.type;
+      const callId = msg.callId;
+      console.log(type);
     }
     
     
