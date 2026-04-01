@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 const express = require("express");
 const axios = require("axios");
 const crypto = require("crypto");
+const WebSocket = require("ws");
 //const wrtc = require("wrtc");
 
 //const { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate, nonstandard } = wrtc;
@@ -607,7 +608,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
 
 
 
-const WebSocket = require("ws");
+
 
 class OpenAIRealtimeSession {
   constructor({
