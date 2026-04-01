@@ -590,6 +590,244 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
   };
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const WebSocket = require("ws");
+
+class OpenAIRealtimeSession {
+  constructor({
+    apiKey,
+    model = "gpt-realtime",
+    instructions = "Responde de forma breve y clara."
+  }) {
+    this.apiKey = apiKey;
+    this.model = model;
+    this.instructions = instructions;
+    this.ws = null;
+    this.isReady = false;
+  }
+  
+  track(remoteTrack,pc)
+  {
+
+    const sink = new RTCAudioSink(remoteTrack);
+    const detector = new SilenceDetector({
+      threshold: 900,
+      speechFramesStart: 8,
+      silenceFramesEnd: 80
+    });
+
+    const player = new BufferedEchoPlayer();
+    pc.addTrack(player.track);
+
+    let buffer = [];
+    let recording = false;
+
+    sink.ondata = async (audio) => {
+      const samples = new Int16Array(audio.samples);
+      const state = detector.update(samples);
+
+      if (state.started && !recording) {
+        recording = true;
+        buffer = [];
+        console.log(`[${callId}] usuario empezó a hablar`);
+      }
+
+      if (recording) {
+        buffer.push({
+          samples: new Int16Array(samples),
+          sampleRate: audio.sampleRate,
+          channelCount: audio.channelCount
+        });
+      }
+
+      if (state.ended && recording) {
+        recording = false;
+        console.log(`[${callId}] usuario dejó de hablar. Reproduciendo ${buffer.length} frames`);
+
+        for (const frame of buffer) {
+          player.enqueueFrame(frame);
+        }
+
+        buffer = [];
+        player.playAll().catch((err) => {
+          console.error(`[${callId}] error reproduciendo`, err);
+        });
+      }
+    };
+
+    return {
+      track: player.track,
+      stop() {
+        try { sink.stop(); } catch {}
+        try { player.stop(); } catch {}
+      }
+    };
+
+  }
+
+  connect() {
+    return new Promise((resolve, reject) => {
+      const url = `wss://api.openai.com/v1/realtime?model=${encodeURIComponent(this.model)}`;
+
+      this.ws = new WebSocket(url, {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          "OpenAI-Beta": "realtime=v1"
+        }
+      });
+
+      this.ws.on("open", () => {
+        console.log("✅ WS conectado a OpenAI Realtime");
+      });
+
+      this.ws.on("message", (raw) => {
+        try {
+          const event = JSON.parse(raw.toString());
+
+          console.log("⬅️ Realtime event:", event.type);
+
+          if (event.type === "session.created") {
+            this.updateSession({
+              instructions: this.instructions,
+              modalities: ["text", "audio"],
+              input_audio_format: "pcm16",
+              output_audio_format: "pcm16"
+            });
+          }
+
+          if (event.type === "session.updated") {
+            this.isReady = true;
+            console.log("✅ Sesión Realtime lista");
+            resolve();
+          }
+
+          if (event.type === "response.audio.delta") {
+            // Aquí recibirías audio generado en chunks
+            // event.delta suele venir en base64
+          }
+
+          if (event.type === "response.done") {
+            console.log("✅ Respuesta finalizada");
+          }
+        } catch (err) {
+          console.error("Error parseando evento Realtime:", err);
+        }
+      });
+
+      this.ws.on("error", (err) => {
+        console.error("❌ Error WS Realtime:", err.message);
+        reject(err);
+      });
+
+      this.ws.on("close", () => {
+        this.isReady = false;
+        console.log("🔌 WS Realtime cerrado");
+      });
+    });
+  }
+
+  send(event) {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      throw new Error("WebSocket Realtime no está abierto");
+    }
+    this.ws.send(JSON.stringify(event));
+  }
+
+  updateSession({
+    instructions,
+    modalities = ["text", "audio"],
+    input_audio_format = "pcm16",
+    output_audio_format = "pcm16"
+  }) {
+    this.send({
+      type: "session.update",
+      session: {
+        instructions,
+        modalities,
+        input_audio_format,
+        output_audio_format
+      }
+    });
+  }
+
+  sendUserText(text) {
+    this.send({
+      type: "conversation.item.create",
+      item: {
+        type: "message",
+        role: "user",
+        content: [
+          {
+            type: "input_text",
+            text
+          }
+        ]
+      }
+    });
+
+    this.send({
+      type: "response.create"
+    });
+  }
+
+  appendAudioBase64(base64Audio) {
+    this.send({
+      type: "input_audio_buffer.append",
+      audio: base64Audio
+    });
+  }
+
+  commitAudio() {
+    this.send({
+      type: "input_audio_buffer.commit"
+    });
+
+    this.send({
+      type: "response.create"
+    });
+  }
+
+  close() {
+    if (this.ws) {
+      this.ws.close();
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* =========================
    WEBRTC
 ========================= */
@@ -664,8 +902,34 @@ async function crearPeer(callId) {
     const remoteTrack = event.track;
     console.log(`[${callId}] track remoto recibido kind=${remoteTrack.kind}`);
 
-    const loop = crearEcoPorSilencio(remoteTrack,pc,callId);
+
+
+
+
+
+
+
+
+    
+    const realtime = new OpenAIRealtimeSession({
+      apiKey: process.env.OPENAI_API_KEY,
+      model: "gpt-realtime",
+      instructions: "Habla en español, breve y natural."
+    });
+    const loop = realtime.track(remoteTrack,pc);
     recursos.loopbacks.push(loop);
+
+    //await rt.connect();
+
+    // prueba de texto
+    //rt.sendUserText("Hola, esta es una prueba desde Node.");
+
+
+
+
+
+    //const loop = crearEcoPorSilencio(remoteTrack,pc,callId);
+    //recursos.loopbacks.push(loop);
 
     //const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
     //recursos.sinks.push(sink);
