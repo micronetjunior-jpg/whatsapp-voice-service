@@ -236,7 +236,7 @@ function crearLoopbackTrack(trackEntrada) {
    WEBRTC
 ========================================================= */
 
-function crearPeerConnection(callId) {
+async function crearPeerConnection(callId) {
   
   /*
   const iceServers = [
@@ -491,7 +491,7 @@ async function manejarConnectCall(call) {
   console.log(`[${callId}] CONNECT recibido`);
   console.log(`[${callId}] SDP remoto resumen:\n${resumenSdp(remoteSdp)}`);
 
-  const pc = crearPeerConnection(callId);
+  const pc = await crearPeerConnection(callId);
   const recursos = prepararMediaParaSesion(pc, callId);
 
   callSessions.set(callId, {
