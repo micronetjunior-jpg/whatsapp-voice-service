@@ -335,18 +335,20 @@ async function crearPeer(callId) {
 
   //const iceServers = await obtenerIceServersCloudflare();
 
-  const iceServers = [
-  {
-    urls: [
-      URL_TURN_1,
-      URL_TURN_2,
-      URL_TURN_3,
-      URL_TURN_4
-    ],
-    TURN_USERNAME,
-    TURN_CREDENTIAL
-  }
-];
+
+  iceServers = [
+    {
+      "urls": [
+        URL_TURN_1,
+        URL_TURN_2
+        URL_TURN_3,
+        URL_TURN_4
+      ],
+      "username": TURN_USERNAME,
+      "credential": TURN_CREDENTIAL
+    }
+  ]
+
 
 //const pc = new RTCPeerConnection({
 //  iceServers
