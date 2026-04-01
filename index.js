@@ -47,7 +47,7 @@ const CLOUDFLARE_TURN_URL =
   `https://rtc.live.cloudflare.com/v1/turn/keys/${TURN_KEY_ID}/credentials/generate-ice-servers`;
 
 const SAMPLE_RATE = 48000;
-const FRAME_SIZE = 480; // 10 ms
+const FRAME_SIZE = 960; // 10 ms
 
 const sessions = new Map();
 
