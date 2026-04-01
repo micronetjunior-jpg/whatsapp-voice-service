@@ -340,14 +340,14 @@ async function crearPeer(callId) {
     {
       "urls": [
         URL_TURN_1,
-        URL_TURN_2
+        URL_TURN_2,
         URL_TURN_3,
         URL_TURN_4
       ],
       "username": TURN_USERNAME,
       "credential": TURN_CREDENTIAL
     }
-  ]
+  ];
 
 
 //const pc = new RTCPeerConnection({
