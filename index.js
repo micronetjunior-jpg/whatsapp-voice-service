@@ -613,7 +613,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
 class OpenAIRealtimeSession {
   constructor({
     apiKey,
-    model = "gpt-realtime",
+    model = "gpt-realtime-mini",
     instructions = "Responde de forma breve y clara."
   }) {
     this.apiKey = apiKey;
@@ -622,7 +622,7 @@ class OpenAIRealtimeSession {
     this.ws = null;
     this.isReady = false;
   }
-  
+
   track(remoteTrack,pc,callId)
   {
 
@@ -911,7 +911,7 @@ async function crearPeer(callId) {
 
 
 
-    
+    /*
     const realtime = new OpenAIRealtimeSession({
       apiKey: process.env.OPENAI_API_KEY,
       model: "gpt-realtime",
@@ -919,6 +919,7 @@ async function crearPeer(callId) {
     });
     const loop = realtime.track(remoteTrack,pc,callId);
     recursos.loopbacks.push(loop);
+    */
 
     //await rt.connect();
 
@@ -929,8 +930,8 @@ async function crearPeer(callId) {
 
 
 
-    //const loop = crearEcoPorSilencio(remoteTrack,pc,callId);
-    //recursos.loopbacks.push(loop);
+    const loop = crearEcoPorSilencio(remoteTrack,pc,callId);
+    recursos.loopbacks.push(loop);
 
     //const sink = crearReceptorDebug(remoteTrack, `${callId}_IN`);
     //recursos.sinks.push(sink);
