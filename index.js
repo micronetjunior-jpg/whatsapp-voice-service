@@ -1202,7 +1202,7 @@ app.get("/health", (_req, res) => {
 
 function bufferToFrame(buffer, sampleRate = 48000, channelCount = 1) {
 
-  console.log(buffer.buffer);
+  console.log(buffer.byteOffset);
   //const samples = new Int16Array(
   //  buffer.buffer,
   //  buffer.byteOffset,
