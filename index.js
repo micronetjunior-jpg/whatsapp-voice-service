@@ -1301,8 +1301,6 @@ wss.on("connection", ws =>
         });
 
       }
-
-      
     }
     
     
