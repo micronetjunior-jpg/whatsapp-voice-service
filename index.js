@@ -1208,16 +1208,17 @@ function bufferToFrame(buffer, sampleRate = 48000, bitsPerSample=16, channelCoun
   //console.log(buffer.byteOffset);
  
   //const samples = new Int16Array(buffer);
-  //
+  //const frame = {samples,sampleRate,bitsPerSample,channelCount};
 
   const aligned = raw.buffer.slice(
     raw.byteOffset,
     raw.byteOffset + raw.byteLength
   );
 
-  //const samples = new Int16Array(aligned);
-  const frame = {samples,sampleRate,bitsPerSample,channelCount};
+  const samples = new Int16Array(aligned);
 
+  const frame = {samples,sampleRate,bitsPerSample,channelCount};
+  
   console.log(frame);
 
   //console.log(aligned);
