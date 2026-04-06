@@ -558,7 +558,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
   let buffer = [];
   let recording = false;
   const preBuffer = [];
-  const PRE_FRAMES = 5;
+  const PRE_FRAMES = 20;
 
 
   sink.ondata = async (audio) => {
