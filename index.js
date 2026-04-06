@@ -593,6 +593,8 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       for (const frame of buffer) {
         player.enqueueFrame(frame);
 
+        console.log(frame);
+
         if (pythonWS?.readyState === WebSocket.OPEN) {
           const audioBuffer = Buffer.from(
             frame.samples.buffer,
@@ -1208,7 +1210,7 @@ function bufferToFrame(buffer, sampleRate = 48000, bitsPerSample=16, channelCoun
   const samples = new Int16Array(buffer);
   const frame = {samples,sampleRate,bitsPerSample,channelCount};
 
-  console.log(frame);
+  //console.log(frame);
 
   //return {
   //  samples,
