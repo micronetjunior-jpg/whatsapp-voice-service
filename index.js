@@ -557,14 +557,30 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
 
   let buffer = [];
   let recording = false;
+  const preBuffer = [];
+  const PRE_FRAMES = 5;
+
 
   sink.ondata = async (audio) => {
     const samples = new Int16Array(audio.samples);
     const state = detector.update(samples);
 
+    // guardar historial previo
+    preBuffer.push({
+      samples: new Int16Array(samples),
+      sampleRate: audio.sampleRate,
+      channelCount: audio.channelCount
+    });
+
+    if (preBuffer.length > PRE_FRAMES) {
+      preBuffer.shift();
+    }
+
+
     if (state.started && !recording) {
       recording = true;
-      buffer = [];
+      // 👇 agrega audio previo
+      buffer = [...preBuffer];
       console.log(`[${callId}] usuario empezó a hablar`);
     }
 
