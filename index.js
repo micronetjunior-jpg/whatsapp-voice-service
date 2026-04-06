@@ -593,7 +593,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       for (const frame of buffer) {
         player.enqueueFrame(frame);
 
-        console.log(frame);
+        //console.log(frame);
 
         if (pythonWS?.readyState === WebSocket.OPEN) {
           const audioBuffer = Buffer.from(
@@ -1204,11 +1204,23 @@ app.get("/health", (_req, res) => {
 
 function bufferToFrame(buffer, sampleRate = 48000, bitsPerSample=16, channelCount = 1) {
 
+  const raw = Buffer.from(buffer);
   //console.log(buffer.byteOffset);
   //const samples = new Int16Array(buffer.buffer);
   //console.log(samples);
-  const samples = new Int16Array(buffer);
-  const frame = {samples,sampleRate,bitsPerSample,channelCount};
+  //const samples = new Int16Array(buffer);
+  //const frame = {samples,sampleRate,bitsPerSample,channelCount};
+
+  const aligned = raw.buffer.slice(
+    raw.byteOffset,
+    raw.byteOffset + raw.byteLength
+  );
+
+  console.log(aligned);
+
+  //const samples = new Int16Array(aligned);
+
+
 
   //console.log(frame);
 
