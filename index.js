@@ -1276,7 +1276,7 @@ wss.on("connection", ws =>
     {
       if(returningAudio)
       {
-        console.log(data);
+        //console.log(data);
         const frame = bufferToFrame(data);
         player.enqueueFrame(frame);
 
@@ -1300,7 +1300,7 @@ wss.on("connection", ws =>
           console.error(`error reproduciendo`, err);
         });
 
-      }k
+      }
 
     }
     
