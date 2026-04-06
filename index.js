@@ -1248,10 +1248,12 @@ wss.on("connection", ws =>
       const callId = msg.callId;
       if(type === "RETURN_AUDIO_START")
       {
+        console.log("START ENQUEUE AUDIO RETURNED...");
         returningAudio = true;
       }
       if(type === "RETURN_AUDIO_END")
       {
+        console.log("END ENQUEUE AUDIO RETURNED. PLAYING...");
         returningAudio = false;
         //player.playAll().catch((err) => {
         //  console.error(`error reproduciendo`, err);
