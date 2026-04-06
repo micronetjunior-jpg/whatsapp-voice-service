@@ -1201,17 +1201,19 @@ app.get("/health", (_req, res) => {
 
 
 function bufferToFrame(buffer, sampleRate = 48000, channelCount = 1) {
-  const samples = new Int16Array(
-    buffer.buffer,
-    buffer.byteOffset,
-    buffer.byteLength / 2
-  );
 
-  return {
-    samples,
-    sampleRate,
-    channelCount
-  };
+  console.log(buffer.buffer);
+  //const samples = new Int16Array(
+  //  buffer.buffer,
+  //  buffer.byteOffset,
+  //  buffer.byteLength / 2
+  //);
+
+  //return {
+  //  samples,
+  //  sampleRate,
+  //  channelCount
+  //};
 }
 
 
@@ -1236,8 +1238,8 @@ wss.on("connection", ws =>
     {
       if(returningAudio)
       {
-        console.log(data);
-        //const frame = bufferToFrame(data);
+        //console.log(data);
+        bufferToFrame(data);
         //player.enqueueFrame(frame);
 
       }
