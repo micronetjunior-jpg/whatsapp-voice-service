@@ -1300,7 +1300,8 @@ wss.on("connection", ws =>
           console.error(`error reproduciendo`, err);
         });
 
-      }
+      }k
+      
     }
     
     
