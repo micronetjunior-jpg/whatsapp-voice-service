@@ -1217,7 +1217,7 @@ function bufferToFrame(buffer, sampleRate = 48000, bitsPerSample=16, channelCoun
 
   const samples = new Int16Array(aligned);
 
-  const frame = {samples,sampleRate,bitsPerSample,channelCount};
+  const frame = {samples,sampleRate,channelCount};
   
   console.log(frame);
 
