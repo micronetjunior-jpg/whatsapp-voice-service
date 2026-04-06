@@ -591,7 +591,7 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       }
 
       for (const frame of buffer) {
-        player.enqueueFrame(frame);
+        //player.enqueueFrame(frame);
 
         //console.log(frame);
 
@@ -614,9 +614,9 @@ function crearEcoPorSilencio(remoteTrack, pc, callId = "call") {
       }
 
       buffer = [];
-      player.playAll().catch((err) => {
-        console.error(`[${callId}] error reproduciendo`, err);
-      });
+      //player.playAll().catch((err) => {
+      //  console.error(`[${callId}] error reproduciendo`, err);
+      //});
     }
   };
 
@@ -1218,8 +1218,10 @@ function bufferToFrame(buffer, sampleRate = 48000, bitsPerSample=16, channelCoun
   const samples = new Int16Array(aligned);
 
   const frame = {samples,sampleRate,channelCount};
+
+  return frame;
   
-  console.log(frame);
+  //console.log(frame);
 
   //console.log(aligned);
 
@@ -1259,8 +1261,8 @@ wss.on("connection", ws =>
       if(returningAudio)
       {
         //console.log(data);
-        bufferToFrame(data);
-        //player.enqueueFrame(frame);
+        const frame = bufferToFrame(data);
+        player.enqueueFrame(frame);
 
       }
       //console.log("Es binario");
@@ -1278,9 +1280,9 @@ wss.on("connection", ws =>
       {
         console.log("END ENQUEUE AUDIO RETURNED. PLAYING...");
         returningAudio = false;
-        //player.playAll().catch((err) => {
-        //  console.error(`error reproduciendo`, err);
-        //});
+        player.playAll().catch((err) => {
+          console.error(`error reproduciendo`, err);
+        });
 
       }
     }
