@@ -246,7 +246,7 @@ function limpiarSdp(sdp) {
     .join("\r\n");
 }
 
-async function esperarIceCompleto(pc, timeoutMs = 16000) {
+async function esperarIceCompleto(pc, timeoutMs = 8000) {
   
   console.log(pc.iceGatheringState);
   
@@ -1202,14 +1202,15 @@ app.get("/health", (_req, res) => {
 
 function bufferToFrame(buffer, sampleRate = 48000, channelCount = 1) {
 
-  console.log(buffer.byteLength);
+  //console.log(buffer.byteLength);
   //const samples = new Int16Array(buffer.buffer);
   //console.log(samples);
-  //const samples = new Int16Array(
-  //  buffer.buffer,
-  //  buffer.byteOffset,
-  //  buffer.byteLength / 2
-  //);
+  const samples = new Int16Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.byteLength / 2
+  );
+  console.log(samples);
 
   //return {
   //  samples,
