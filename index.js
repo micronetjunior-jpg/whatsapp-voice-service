@@ -412,8 +412,8 @@ function crearReceptorDebug(track, label) {
 class SilenceDetector {
   constructor({
     threshold = 900,
-    speechFramesStart = 6,
-    silenceFramesEnd = 30
+    speechFramesStart = 0,
+    silenceFramesEnd = 60
   } = {}) {
     this.threshold = threshold;
     this.speechFramesStart = speechFramesStart;
